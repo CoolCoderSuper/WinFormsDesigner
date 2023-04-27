@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net48;net7.0-windows</TargetFrameworks>
+    <RootNamespace>CodingCool.DeveloperCore.WinForms.Designer</RootNamespace>
+    <AssemblyName>CodingCool.DeveloperCore.WinForms.Designer</AssemblyName>
+	<UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Project\NRefactory.csproj" />
+    <Reference Include="System.Design" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="4.5.0"/>
+  </ItemGroup>
+</Project>

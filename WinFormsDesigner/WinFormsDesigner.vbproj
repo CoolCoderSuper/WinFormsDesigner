@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>WinFormsDesigner</RootNamespace>
+    <AssemblyName>WinFormsDesigner</AssemblyName>
+	<TargetFrameworks>net48;net7.0-windows</TargetFrameworks>
+	<UseWindowsForms>true</UseWindowsForms>
+	<StartupObject>WinFormsDesigner.frmBase</StartupObject>
+	<ImportedNamespaces>System.Windows.Forms=False,Microsoft.VisualBasic=True,System=True,System.Collections=True,System.Collections.Generic=True,System.Data=True,System.Diagnostics=True,System.Linq=True,System.Xml.Linq=True,System.Threading.Tasks=True,WinFormsDesigner=True</ImportedNamespaces>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CodingCool.DeveloperCore.WinForms.Designer\CodingCool.DeveloperCore.WinForms.Designer.vbproj" />
+    <Import Include="System.Windows.Forms" />
+    <Import Include="System.Drawing" />
+	<Reference Include="System.Design" Condition="$(TargetFramework) == 'net48'" />
+  </ItemGroup>
+</Project>

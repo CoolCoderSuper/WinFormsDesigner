@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>ICSharpCode.NRefactory</RootNamespace>
+    <AssemblyName>ICSharpCode.NRefactory</AssemblyName>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Resources\ICSharpCode.NRefactory.snk</AssemblyOriginatorKeyFile>
+    <TargetFramework>netstandard2.0</TargetFramework>    
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Src\Lexer\CSharp\KeywordList.txt" />
+    <Content Include="Src\Lexer\VBNet\KeywordList.txt" />
+    <Content Include="Src\Parser\CSharp\cs.ATG" />
+    <Content Include="Src\Parser\CSharp\trace.txt" />
+    <Content Include="Src\Parser\Frames\OldSharpCoco.exe" />
+    <Content Include="Src\Parser\Frames\Parser.frame" />
+    <Content Include="Src\Parser\Frames\Parser.frame.new" />
+    <Content Include="Src\Parser\Frames\Parser.frame.old" />
+    <Content Include="Src\Parser\Frames\Scanner.frame" />
+    <Content Include="Src\Parser\Frames\SharpCoco.exe" />
+    <Content Include="Src\Parser\Frames\trace.txt" />
+    <Content Include="Src\Parser\VBNet\VBNET.ATG" />
+    <Content Include="Src\Parser\gen.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.CodeDom" Version="7.0.0" />
+    <PackageReference Include="System.Security.Permissions" Version="7.0.0" />
+  </ItemGroup>
+</Project>
