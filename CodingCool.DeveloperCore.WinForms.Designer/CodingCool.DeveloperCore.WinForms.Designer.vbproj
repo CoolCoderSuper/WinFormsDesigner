@@ -13,6 +13,5 @@
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="7.0.2" />
     <Reference Include="System.Design" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="4.5.0" />
   </ItemGroup>
 </Project>
