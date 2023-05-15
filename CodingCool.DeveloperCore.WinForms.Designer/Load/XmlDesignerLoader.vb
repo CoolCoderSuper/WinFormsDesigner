@@ -5,88 +5,82 @@ Imports System.Globalization
 Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.InteropServices
-Imports System.Runtime.Serialization.Formatters.Binary
+Imports System.Text
+Imports System.Text.Json
+Imports System.Text.Json.Serialization
+Imports System.Threading
 Imports System.Windows.Forms
 Imports System.Xml
-'TODO: Move away from binary formatter
+'stolen with glee from a random msdn article that i cant find
 Namespace Load
     Public Class XmlDesignerLoader
         Inherits BasicDesignerLoader
 
-        Private root As IComponent
-        Private dirty As Boolean = True
-        Private unsaved As Boolean
-        Private fileName As String
-        Private host As IDesignerLoaderHost
-        Public Property XmlDocument As XmlDocument
-        Private Shared ReadOnly propertyAttributes As Attribute() = New Attribute() {DesignOnlyAttribute.No}
-        Private rootComponentType As Type
+        Private _root As IComponent
+        Private _dirty As Boolean = True
+        Private _unsaved As Boolean
+        Private _fileName As String
+        Private _host As IDesignerLoaderHost
+        Private _xmlDocument As XmlDocument
+        Private Shared ReadOnly _propertyAttributes As Attribute() = New Attribute() {DesignOnlyAttribute.No}
+        Private ReadOnly _rootComponentType As Type
 
-        Public Sub New(ByVal rootComponentType As Type)
-            Me.rootComponentType = rootComponentType
-            Me.Modified = True
+        Public Sub New(rootComponentType As Type)
+            _rootComponentType = rootComponentType
+            Modified = True
         End Sub
 
-        Public Sub New(ByVal fileName As String)
+        Public Sub New(fileName As String)
             If fileName Is Nothing Then
-                Throw New ArgumentNullException("fileName")
+                Throw New ArgumentNullException(NameOf(fileName))
             End If
-
-            Me.fileName = fileName
+            _fileName = fileName
         End Sub
 
-        Protected Overrides Sub PerformLoad(ByVal designerSerializationManager As IDesignerSerializationManager)
-            Me.host = Me.LoaderHost
-
-            If host Is Nothing Then
+        Protected Overrides Sub PerformLoad(designerSerializationManager As IDesignerSerializationManager)
+            _host = LoaderHost
+            If _host Is Nothing Then
                 Throw New ArgumentNullException("BasicHostLoader.BeginLoad: Invalid designerLoaderHost.")
             End If
-
             Dim errors As ArrayList = New ArrayList()
             Dim successful As Boolean = True
             Dim baseClassName As String
-
-            If fileName Is Nothing Then
-
-                If rootComponentType = GetType(Form) Then
-                    host.CreateComponent(GetType(Form))
+            If _fileName Is Nothing Then
+                If _rootComponentType = GetType(Form) Then
+                    _host.CreateComponent(GetType(Form))
                     baseClassName = "Form1"
-                ElseIf rootComponentType = GetType(UserControl) Then
-                    host.CreateComponent(GetType(UserControl))
+                ElseIf _rootComponentType = GetType(UserControl) Then
+                    _host.CreateComponent(GetType(UserControl))
                     baseClassName = "UserControl1"
-                ElseIf rootComponentType = GetType(Component) Then
-                    host.CreateComponent(GetType(Component))
+                ElseIf _rootComponentType = GetType(Component) Then
+                    _host.CreateComponent(GetType(Component))
                     baseClassName = "Component1"
                 Else
-                    Throw New Exception("Undefined Host Type: " & rootComponentType.ToString())
+                    Throw New Exception("Undefined Host Type: " & _rootComponentType.ToString())
                 End If
             Else
-                baseClassName = ReadFile(fileName, errors, xmlDocument)
+                baseClassName = ReadFile(_fileName, errors, _xmlDocument)
             End If
-
-            Dim cs As IComponentChangeService = TryCast(host.GetService(GetType(IComponentChangeService)), IComponentChangeService)
-
+            Dim cs As IComponentChangeService = TryCast(_host.GetService(GetType(IComponentChangeService)), IComponentChangeService)
             If cs IsNot Nothing Then
                 AddHandler cs.ComponentAdded, AddressOf OnComponentAddedRemoved
                 AddHandler cs.ComponentRemoved, AddressOf OnComponentAddedRemoved
                 AddHandler cs.ComponentChanged, AddressOf OnComponentChanged
             End If
-
-            host.EndLoad(baseClassName, successful, errors)
-            dirty = True
-            unsaved = False
+            _host.EndLoad(baseClassName, successful, errors)
+            _dirty = True
+            _unsaved = False
         End Sub
 
-        Protected Overrides Sub PerformFlush(ByVal designerSerializationManager As IDesignerSerializationManager)
-            If Not dirty Then
+        Protected Overrides Sub PerformFlush(designerSerializationManager As IDesignerSerializationManager)
+            If Not _dirty Then
                 Return
             End If
-
             PerformFlushWorker()
         End Sub
 
         Public Overrides Sub Dispose()
-            Dim cs As IComponentChangeService = TryCast(host.GetService(GetType(IComponentChangeService)), IComponentChangeService)
+            Dim cs As IComponentChangeService = TryCast(_host.GetService(GetType(IComponentChangeService)), IComponentChangeService)
 
             If cs IsNot Nothing Then
                 RemoveHandler cs.ComponentAdded, AddressOf OnComponentAddedRemoved
@@ -95,22 +89,22 @@ Namespace Load
             End If
         End Sub
 
-        Private Function GetConversionSupported(ByVal converter As TypeConverter, ByVal conversionType As Type) As Boolean
+        Private Function GetConversionSupported(converter As TypeConverter, conversionType As Type) As Boolean
             Return (converter.CanConvertFrom(conversionType) AndAlso converter.CanConvertTo(conversionType))
         End Function
 
-        Private Sub OnComponentChanged(ByVal sender As Object, ByVal ce As ComponentChangedEventArgs)
-            dirty = True
-            unsaved = True
+        Private Sub OnComponentChanged(sender As Object, ce As ComponentChangedEventArgs)
+            _dirty = True
+            _unsaved = True
         End Sub
 
-        Private Sub OnComponentAddedRemoved(ByVal sender As Object, ByVal ce As ComponentEventArgs)
-            dirty = True
-            unsaved = True
+        Private Sub OnComponentAddedRemoved(sender As Object, ce As ComponentEventArgs)
+            _dirty = True
+            _unsaved = True
         End Sub
 
         Friend Function PromptDispose() As Boolean
-            If dirty OrElse unsaved Then
+            If _dirty OrElse _unsaved Then
 
                 Select Case MessageBox.Show("Save changes to existing designer?", "Unsaved Changes", MessageBoxButtons.YesNoCancel)
                     Case DialogResult.Yes
@@ -126,24 +120,24 @@ Namespace Load
         Public Sub PerformFlushWorker()
             Dim document As XmlDocument = New XmlDocument()
             document.AppendChild(document.CreateElement("DOCUMENT_ELEMENT"))
-            Dim idh As IDesignerHost = CType(Me.host.GetService(GetType(IDesignerHost)), IDesignerHost)
-            root = idh.RootComponent
+            Dim idh As IDesignerHost = CType(Me._host.GetService(GetType(IDesignerHost)), IDesignerHost)
+            _root = idh.RootComponent
             Dim nametable As Hashtable = New Hashtable(idh.Container.Components.Count)
-            Dim manager As IDesignerSerializationManager = TryCast(host.GetService(GetType(IDesignerSerializationManager)), IDesignerSerializationManager)
-            document.DocumentElement.AppendChild(WriteObject(document, nametable, root))
+            Dim manager As IDesignerSerializationManager = TryCast(_host.GetService(GetType(IDesignerSerializationManager)), IDesignerSerializationManager)
+            document.DocumentElement.AppendChild(WriteObject(document, nametable, _root))
 
             For Each comp As IComponent In idh.Container.Components
 
-                If comp IsNot root AndAlso Not nametable.ContainsKey(comp) Then
+                If comp IsNot _root AndAlso Not nametable.ContainsKey(comp) Then
                     document.DocumentElement.AppendChild(WriteObject(document, nametable, comp))
                 End If
             Next
 
-            xmlDocument = document
+            _xmlDocument = document
         End Sub
 
-        Private Function WriteObject(ByVal document As XmlDocument, ByVal nametable As IDictionary, ByVal value As Object) As XmlNode
-            Dim idh As IDesignerHost = CType(Me.host.GetService(GetType(IDesignerHost)), IDesignerHost)
+        Private Function WriteObject(document As XmlDocument, nametable As IDictionary, value As Object) As XmlNode
+            Dim idh As IDesignerHost = CType(Me._host.GetService(GetType(IDesignerHost)), IDesignerHost)
             Debug.Assert(value IsNot Nothing, "Should not invoke WriteObject with a null value")
             Dim node As XmlNode = document.CreateElement("Object")
             Dim typeAttr As XmlAttribute = document.CreateAttribute("type")
@@ -179,7 +173,7 @@ Namespace Load
                     Next
                 End If
 
-                Dim properties As PropertyDescriptorCollection = TypeDescriptor.GetProperties(value, propertyAttributes)
+                Dim properties As PropertyDescriptorCollection = TypeDescriptor.GetProperties(value, _propertyAttributes)
 
                 If isControl Then
                     Dim controlProp As PropertyDescriptor = properties("Controls")
@@ -191,7 +185,7 @@ Namespace Load
                         For Each p As PropertyDescriptor In properties
 
                             If p IsNot controlProp Then
-                                propArray(Math.Min(System.Threading.Interlocked.Increment(idx), idx - 1)) = p
+                                propArray(Math.Min(Interlocked.Increment(idx), idx - 1)) = p
                             End If
                         Next
 
@@ -200,8 +194,8 @@ Namespace Load
                 End If
 
                 WriteProperties(document, properties, value, node, "Property")
-                Dim events As EventDescriptorCollection = TypeDescriptor.GetEvents(value, propertyAttributes)
-                Dim bindings As IEventBindingService = TryCast(host.GetService(GetType(IEventBindingService)), IEventBindingService)
+                Dim events As EventDescriptorCollection = TypeDescriptor.GetEvents(value, _propertyAttributes)
+                Dim bindings As IEventBindingService = TryCast(_host.GetService(GetType(IEventBindingService)), IEventBindingService)
 
                 If bindings IsNot Nothing Then
                     properties = bindings.GetEventProperties(events)
@@ -214,15 +208,9 @@ Namespace Load
             Return node
         End Function
 
-        Private Sub WriteProperties(ByVal document As XmlDocument, ByVal properties As PropertyDescriptorCollection, ByVal value As Object, ByVal parent As XmlNode, ByVal elementName As String)
+        Private Sub WriteProperties(document As XmlDocument, properties As PropertyDescriptorCollection, value As Object, parent As XmlNode, elementName As String)
             For Each prop As PropertyDescriptor In properties
-
-                If prop.Name = "AutoScaleBaseSize" Then
-                    Dim _DEBUG_ As String = prop.Name
-                End If
-
                 If prop.ShouldSerializeValue(value) Then
-                    Dim compName As String = parent.Name
                     Dim node As XmlNode = document.CreateElement(elementName)
                     Dim attr As XmlAttribute = document.CreateAttribute("name")
                     attr.Value = prop.Name
@@ -242,22 +230,20 @@ Namespace Load
                             If GetType(IList).IsAssignableFrom(prop.PropertyType) Then
                                 WriteCollection(document, CType(propValue, IList), node)
                             Else
-                                Dim props As PropertyDescriptorCollection = TypeDescriptor.GetProperties(propValue, propertyAttributes)
+                                Dim props As PropertyDescriptorCollection = TypeDescriptor.GetProperties(propValue, _propertyAttributes)
                                 WriteProperties(document, props, propValue, node, elementName)
                             End If
 
                             If node.ChildNodes.Count > 0 Then
                                 parent.AppendChild(node)
                             End If
-
-                        Case Else
                     End Select
                 End If
             Next
         End Sub
 
-        Private Function WriteReference(ByVal document As XmlDocument, ByVal value As IComponent) As XmlNode
-            Dim idh As IDesignerHost = CType(Me.host.GetService(GetType(IDesignerHost)), IDesignerHost)
+        Private Function WriteReference(document As XmlDocument, value As IComponent) As XmlNode
+            Dim idh As IDesignerHost = CType(_host.GetService(GetType(IDesignerHost)), IDesignerHost)
             Debug.Assert(value IsNot Nothing AndAlso value.Site IsNot Nothing AndAlso value.Site.Container Is idh.Container, "Invalid component passed to WriteReference")
             Dim node As XmlNode = document.CreateElement("Reference")
             Dim attr As XmlAttribute = document.CreateAttribute("name")
@@ -266,8 +252,8 @@ Namespace Load
             Return node
         End Function
 
-        Private Function WriteValue(ByVal document As XmlDocument, ByVal value As Object, ByVal parent As XmlNode) As Boolean
-            Dim idh As IDesignerHost = CType(Me.host.GetService(GetType(IDesignerHost)), IDesignerHost)
+        Private Function WriteValue(document As XmlDocument, value As Object, parent As XmlNode) As Boolean
+            Dim idh As IDesignerHost = CType(_host.GetService(GetType(IDesignerHost)), IDesignerHost)
 
             If value Is Nothing Then
                 Return True
@@ -286,10 +272,10 @@ Namespace Load
             ElseIf TypeOf value Is IComponent AndAlso (CType(value, IComponent)).Site IsNot Nothing AndAlso CType(value, IComponent).Site.Container Is idh.Container Then
                 parent.AppendChild(WriteReference(document, CType(value, IComponent)))
             ElseIf value.[GetType]().IsSerializable Then
-                Dim formatter As BinaryFormatter = New BinaryFormatter()
-                Dim stream As MemoryStream = New MemoryStream()
-                formatter.Serialize(stream, value)
-                Dim binaryNode As XmlNode = WriteBinary(document, stream.ToArray())
+                'Dim formatter As BinaryFormatter = New BinaryFormatter()
+                'Dim stream As MemoryStream = New MemoryStream()
+                'formatter.Serialize(stream, value)
+                Dim binaryNode As XmlNode = WriteBinary(document, ObjectToByteArray(value))
                 parent.AppendChild(binaryNode)
             Else
                 Return False
@@ -298,7 +284,7 @@ Namespace Load
             Return True
         End Function
 
-        Private Sub WriteCollection(ByVal document As XmlDocument, ByVal list As IList, ByVal parent As XmlNode)
+        Private Sub WriteCollection(document As XmlDocument, list As IList, parent As XmlNode)
             For Each obj As Object In list
                 Dim node As XmlNode = document.CreateElement("Item")
                 Dim typeAttr As XmlAttribute = document.CreateAttribute("type")
@@ -309,19 +295,19 @@ Namespace Load
             Next
         End Sub
 
-        Private Function WriteBinary(ByVal document As XmlDocument, ByVal value As Byte()) As XmlNode
+        Private Function WriteBinary(document As XmlDocument, value As Byte()) As XmlNode
             Dim node As XmlNode = document.CreateElement("Binary")
             node.InnerText = Convert.ToBase64String(value)
             Return node
         End Function
 
-        Private Function WriteInstanceDescriptor(ByVal document As XmlDocument, ByVal desc As InstanceDescriptor, ByVal value As Object) As XmlNode
+        Private Function WriteInstanceDescriptor(document As XmlDocument, desc As InstanceDescriptor, value As Object) As XmlNode
             Dim node As XmlNode = document.CreateElement("InstanceDescriptor")
-            Dim formatter As BinaryFormatter = New BinaryFormatter()
-            Dim stream As MemoryStream = New MemoryStream()
-            formatter.Serialize(stream, desc.MemberInfo)
+            'Dim formatter As BinaryFormatter = New BinaryFormatter()
+            'Dim stream As MemoryStream = New MemoryStream()
+            'formatter.Serialize(stream, desc.MemberInfo)
             Dim memberAttr As XmlAttribute = document.CreateAttribute("member")
-            memberAttr.Value = Convert.ToBase64String(stream.ToArray())
+            memberAttr.Value = Convert.ToBase64String(ObjectToByteArray(desc.MemberInfo))
             node.Attributes.Append(memberAttr)
 
             For Each arg As Object In desc.Arguments
@@ -333,14 +319,14 @@ Namespace Load
             Next
 
             If Not desc.IsComplete Then
-                Dim props As PropertyDescriptorCollection = TypeDescriptor.GetProperties(value, propertyAttributes)
+                Dim props As PropertyDescriptorCollection = TypeDescriptor.GetProperties(value, _propertyAttributes)
                 WriteProperties(document, props, value, node, "Property")
             End If
 
             Return node
         End Function
 
-        Private Function ReadFile(ByVal fileName As String, ByVal errors As ArrayList, <Out> ByRef document As XmlDocument) As String
+        Private Function ReadFile(fileName As String, errors As ArrayList, <Out> ByRef document As XmlDocument) As String
             Dim baseClass As String = Nothing
 
             Try
@@ -372,8 +358,8 @@ Namespace Load
             Return baseClass
         End Function
 
-        Private Sub ReadEvent(ByVal childNode As XmlNode, ByVal instance As Object, ByVal errors As ArrayList)
-            Dim bindings As IEventBindingService = TryCast(host.GetService(GetType(IEventBindingService)), IEventBindingService)
+        Private Sub ReadEvent(childNode As XmlNode, instance As Object, errors As ArrayList)
+            Dim bindings As IEventBindingService = TryCast(_host.GetService(GetType(IEventBindingService)), IEventBindingService)
 
             If bindings Is Nothing Then
                 errors.Add("Unable to contact event binding service so we can't bind any events")
@@ -411,7 +397,7 @@ Namespace Load
             End Try
         End Sub
 
-        Private Function ReadInstanceDescriptor(ByVal node As XmlNode, ByVal errors As ArrayList) As Object
+        Private Function ReadInstanceDescriptor(node As XmlNode, errors As ArrayList) As Object
             Dim memberAttr As XmlAttribute = node.Attributes("member")
 
             If memberAttr Is Nothing Then
@@ -420,9 +406,9 @@ Namespace Load
             End If
 
             Dim data As Byte() = Convert.FromBase64String(memberAttr.Value)
-            Dim formatter As BinaryFormatter = New BinaryFormatter()
-            Dim stream As MemoryStream = New MemoryStream(data)
-            Dim mi As MemberInfo = CType(formatter.Deserialize(stream), MemberInfo)
+            'Dim formatter As BinaryFormatter = New BinaryFormatter()
+            'Dim stream As MemoryStream = New MemoryStream(data)
+            Dim mi As MemberInfo = ByteArrayToObject(Of MemberInfo)(data)'CType(formatter.Deserialize(stream), MemberInfo)
             Dim args As Object() = Nothing
 
             If TypeOf mi Is MethodBase Then
@@ -439,7 +425,7 @@ Namespace Load
                             Return Nothing
                         End If
 
-                        args(Math.Min(System.Threading.Interlocked.Increment(idx), idx - 1)) = value
+                        args(Math.Min(Interlocked.Increment(idx), idx - 1)) = value
                     End If
                 Next
 
@@ -462,7 +448,7 @@ Namespace Load
             Return instance
         End Function
 
-        Private Function ReadObject(ByVal node As XmlNode, ByVal errors As ArrayList) As Object
+        Private Function ReadObject(node As XmlNode, errors As ArrayList) As Object
             Dim typeAttr As XmlAttribute = node.Attributes("type")
 
             If typeAttr Is Nothing Then
@@ -483,9 +469,9 @@ Namespace Load
             If GetType(IComponent).IsAssignableFrom(type) Then
 
                 If nameAttr Is Nothing Then
-                    instance = host.CreateComponent(type)
+                    instance = _host.CreateComponent(type)
                 Else
-                    instance = host.CreateComponent(type, nameAttr.Value)
+                    instance = _host.CreateComponent(type, nameAttr.Value)
                 End If
             Else
                 instance = Activator.CreateInstance(type)
@@ -531,7 +517,7 @@ Namespace Load
             Return instance
         End Function
 
-        Private Sub ReadProperty(ByVal node As XmlNode, ByVal instance As Object, ByVal errors As ArrayList)
+        Private Sub ReadProperty(node As XmlNode, instance As Object, errors As ArrayList)
             Dim nameAttr As XmlAttribute = node.Attributes("name")
 
             If nameAttr Is Nothing Then
@@ -608,7 +594,7 @@ Namespace Load
             End If
         End Sub
 
-        Private Function ReadValue(ByVal node As XmlNode, ByVal converter As TypeConverter, ByVal errors As ArrayList, <Out> ByRef value As Object) As Boolean
+        Private Function ReadValue(node As XmlNode, converter As TypeConverter, errors As ArrayList, <Out> ByRef value As Object) As Boolean
             Try
 
                 For Each child As XmlNode In node.ChildNodes
@@ -623,9 +609,10 @@ Namespace Load
                             value = converter.ConvertFrom(Nothing, CultureInfo.InvariantCulture, data)
                             Return True
                         Else
-                            Dim formatter As BinaryFormatter = New BinaryFormatter()
-                            Dim stream As MemoryStream = New MemoryStream(data)
-                            value = formatter.Deserialize(stream)
+                            'Dim formatter As BinaryFormatter = New BinaryFormatter()
+                            'Dim stream As MemoryStream = New MemoryStream(data)
+                            'value = formatter.Deserialize(stream)
+                            value = ByteArrayToObject(data, GetType(Object))
                             Return True
                         End If
                     ElseIf child.Name.Equals("InstanceDescriptor") Then
@@ -653,7 +640,7 @@ Namespace Load
             sw = New StringWriter()
             Dim xtw As XmlTextWriter = New XmlTextWriter(sw)
             xtw.Formatting = Formatting.Indented
-            xmlDocument.WriteTo(xtw)
+            _xmlDocument.WriteTo(xtw)
             Dim cleanup As String = sw.ToString().Replace("<DOCUMENT_ELEMENT>", "")
             cleanup = cleanup.Replace("</DOCUMENT_ELEMENT>", "")
             sw.Close()
@@ -664,39 +651,39 @@ Namespace Load
             Save(False)
         End Sub
 
-        Public Sub Save(ByVal forceFilePrompt As Boolean)
+        Public Sub Save(forceFilePrompt As Boolean)
             Try
                 Flush()
                 Dim filterIndex As Integer = 3
 
-                If (fileName Is Nothing) OrElse forceFilePrompt Then
+                If (_fileName Is Nothing) OrElse forceFilePrompt Then
                     Dim dlg As SaveFileDialog = New SaveFileDialog()
                     dlg.DefaultExt = "xml"
                     dlg.Filter = "XML Files|*.xml"
 
                     If dlg.ShowDialog() = DialogResult.OK Then
-                        fileName = dlg.FileName
+                        _fileName = dlg.FileName
                         filterIndex = dlg.FilterIndex
                     End If
                 End If
 
-                If fileName IsNot Nothing Then
+                If _fileName IsNot Nothing Then
 
                     Select Case filterIndex
                         Case 1
                             Dim sw As StringWriter = New StringWriter()
                             Dim xtw As XmlTextWriter = New XmlTextWriter(sw)
                             xtw.Formatting = Formatting.Indented
-                            xmlDocument.WriteTo(xtw)
+                            _xmlDocument.WriteTo(xtw)
                             Dim cleanup As String = sw.ToString().Replace("<DOCUMENT_ELEMENT>", "")
                             cleanup = cleanup.Replace("</DOCUMENT_ELEMENT>", "")
                             xtw.Close()
-                            Dim file As StreamWriter = New StreamWriter(fileName)
+                            Dim file As StreamWriter = New StreamWriter(_fileName)
                             file.Write(cleanup)
                             file.Close()
                     End Select
 
-                    unsaved = False
+                    _unsaved = False
                 End If
 
             Catch ex As Exception
@@ -704,5 +691,41 @@ Namespace Load
             End Try
         End Sub
     End Class
+
+    Friend Module Binary
+        ''' <summary>
+        ''' Convert an object to a Byte Array.
+        ''' </summary>
+        Public Function ObjectToByteArray(objData As Object) As Byte()
+            If objData Is Nothing Then Return Nothing
+
+            Return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(objData, GetJsonSerializerOptions()))
+        End Function
+
+        ''' <summary>
+        ''' Convert a byte array to an Object of T.
+        ''' </summary>
+        Public Function ByteArrayToObject(Of T)(byteArray As Byte()) As T
+            If byteArray Is Nothing OrElse Not byteArray.Any() Then Return Nothing
+            Return JsonSerializer.Deserialize(Of T)(byteArray, GetJsonSerializerOptions())
+        End Function
+
+        ''' <summary>
+        ''' Convert a byte array to an Object.
+        ''' </summary>
+        Public Function ByteArrayToObject(byteArray As Byte(), returnType As Type) As Object
+            If byteArray Is Nothing OrElse Not byteArray.Any() Then Return Nothing
+            Return JsonSerializer.Deserialize(byteArray, returnType, GetJsonSerializerOptions())
+        End Function
+        
+        Private Function GetJsonSerializerOptions() As JsonSerializerOptions
+            Return New JsonSerializerOptions() With {
+                .PropertyNamingPolicy = Nothing,
+                .WriteIndented = True,
+                .AllowTrailingCommas = True,
+                .DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                }
+        End Function
+    End Module
 
 End Namespace

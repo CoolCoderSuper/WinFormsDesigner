@@ -4,9 +4,9 @@
     <RootNamespace>CodingCool.DeveloperCore.WinForms.Designer</RootNamespace>
     <AssemblyName>CodingCool.DeveloperCore.WinForms.Designer</AssemblyName>
 	<UseWindowsForms>true</UseWindowsForms>
-    <EnableUnsafeBinaryFormatterSerialization>True</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="7.0.2" />
     <Reference Include="System.Design" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="4.5.0" />
   </ItemGroup>

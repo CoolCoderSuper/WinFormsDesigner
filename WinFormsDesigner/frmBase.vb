@@ -157,17 +157,7 @@ Public Class frmBase
     Private Sub SaveToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveToolStripMenuItem.Click
         Dim designer As IDesignSurfaceExt = GetCurrentDesigner()
         Dim loader As XmlDesignerLoader = designer.GetLoader()
-        loader.Flush()
-        Dim sw As StringWriter = New StringWriter()
-        Dim xtw As XmlTextWriter = New XmlTextWriter(sw)
-        xtw.Formatting = Formatting.Indented
-        loader.XmlDocument.WriteTo(xtw)
-        Dim cleanup As String = sw.ToString().Replace("<DOCUMENT_ELEMENT>", "")
-        cleanup = cleanup.Replace("</DOCUMENT_ELEMENT>", "")
-        xtw.Close()
-        Dim file As StreamWriter = New StreamWriter("C:\CodingCool\Code\Projects\test.xml")
-        file.Write(cleanup)
-        file.Close()
+        loader.Save(True)
         'IO.File.WriteAllText("C:\CodingCool\Code\Projects\test.vb", designer.GetCodeBehind(DesignLanguage.VB))
     End Sub
 
