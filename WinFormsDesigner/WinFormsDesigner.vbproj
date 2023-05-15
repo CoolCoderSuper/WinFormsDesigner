@@ -15,4 +15,7 @@
     <Import Include="System.Drawing" />
 	<Reference Include="System.Design" Condition="$(TargetFramework) == 'net48'" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Resources.Extensions" Version="7.0.0" />
+  </ItemGroup>
 </Project>

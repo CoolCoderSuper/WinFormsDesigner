@@ -8,6 +8,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Project\NRefactory.csproj" />
     <Reference Include="System.Design" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="4.5.0"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="4.5.0" />
   </ItemGroup>
 </Project>

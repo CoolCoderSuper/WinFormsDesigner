@@ -11,37 +11,17 @@ Imports System.Reflection
 Imports System.Text
 Imports System.Windows.Forms
 Imports CodingCool.DeveloperCore.WinForms.Designer.Core
-Imports Microsoft.CodeAnalysis
 Imports Microsoft.CodeAnalysis.VisualBasic
 Imports Microsoft.CodeAnalysis.VisualBasic.Syntax
 Imports Microsoft.CSharp
 
-'this class adds to a .NET
-'   DesignSurface instance
-'the following facilities:
-'    * TabOrder
-'    * UndoEngine
-'    * Cut/Copy/Paste/Delete commands
-' DesignSurfaceExt
-'    |
-'    +--|DesignSurface|
-'    |
-'    +--|TabOrder|
-'    |
-'    +--|UndoEngine|
-'    |
-'    +--|Cut/Copy/Paste/Delete commands|
 Namespace Base
 
     Public Class DesignSurfaceExt
         Inherits DesignSurface
         Implements IDesignSurfaceExt
 
-        Private Const _Name_ As String = "DesignSurfaceExt"
-
-#Region "IDesignSurfaceExt Members"
-
-        Private _menuCommandService As MenuCommandServiceExt = Nothing
+        Private _menuCommandService As Core.MenuCommandService = Nothing
 
         Public Sub SwitchTabOrder() Implements IDesignSurfaceExt.SwitchTabOrder
             If IsTabOrderMode = False Then
@@ -55,117 +35,80 @@ Namespace Base
             Dim serviceProvider As IServiceContainer = TryCast(GetService(GetType(IServiceContainer)), IServiceContainer)
             Dim opsService As DesignerOptionService = TryCast(serviceProvider.GetService(GetType(DesignerOptionService)), DesignerOptionService)
             If opsService IsNot Nothing Then serviceProvider.RemoveService(GetType(DesignerOptionService))
-            Dim opsService2 As DesignerOptionService = New DesignerOptionServiceExt4SnapLines()
-            serviceProvider.AddService(GetType(DesignerOptionService), opsService2)
+            Dim snapLinesService As DesignerOptionService = New DesignerOptionServiceSnapLines()
+            serviceProvider.AddService(GetType(DesignerOptionService), snapLinesService)
         End Sub
 
         Public Sub UseGrid(gridSize As Size) Implements IDesignSurfaceExt.UseGrid
             Dim serviceProvider As IServiceContainer = TryCast(GetService(GetType(IServiceContainer)), IServiceContainer)
             Dim opsService As DesignerOptionService = TryCast(serviceProvider.GetService(GetType(DesignerOptionService)), DesignerOptionService)
             If opsService IsNot Nothing Then serviceProvider.RemoveService(GetType(DesignerOptionService))
-            Dim opsService2 As DesignerOptionService = New DesignerOptionServiceExt4Grid(gridSize)
-            serviceProvider.AddService(GetType(DesignerOptionService), opsService2)
+            Dim gridService As DesignerOptionService = New DesignerOptionServiceGrid(gridSize)
+            serviceProvider.AddService(GetType(DesignerOptionService), gridService)
         End Sub
 
         Public Sub UseGridWithoutSnapping(gridSize As Size) Implements IDesignSurfaceExt.UseGridWithoutSnapping
             Dim serviceProvider As IServiceContainer = TryCast(GetService(GetType(IServiceContainer)), IServiceContainer)
             Dim opsService As DesignerOptionService = TryCast(serviceProvider.GetService(GetType(DesignerOptionService)), DesignerOptionService)
             If opsService IsNot Nothing Then serviceProvider.RemoveService(GetType(DesignerOptionService))
-            Dim opsService2 As DesignerOptionService = New DesignerOptionServiceExt4GridWithoutSnapping(gridSize)
-            serviceProvider.AddService(GetType(DesignerOptionService), opsService2)
+            Dim noSnapService As DesignerOptionService = New DesignerOptionServiceGridWithoutSnapping(gridSize)
+            serviceProvider.AddService(GetType(DesignerOptionService), noSnapService)
         End Sub
 
         Public Sub UseNoGuides() Implements IDesignSurfaceExt.UseNoGuides
             Dim serviceProvider As IServiceContainer = TryCast(GetService(GetType(IServiceContainer)), IServiceContainer)
             Dim opsService As DesignerOptionService = TryCast(serviceProvider.GetService(GetType(DesignerOptionService)), DesignerOptionService)
             If opsService IsNot Nothing Then serviceProvider.RemoveService(GetType(DesignerOptionService))
-            Dim opsService2 As DesignerOptionService = New DesignerOptionServiceExt4NoGuides()
-            serviceProvider.AddService(GetType(DesignerOptionService), opsService2)
+            Dim noGuidsService As DesignerOptionService = New DesignerOptionServiceNoGuides()
+            serviceProvider.AddService(GetType(DesignerOptionService), noGuidsService)
         End Sub
 
-        Public Function GetUndoEngineExt() As UndoEngineExt Implements IDesignSurfaceExt.GetUndoEngineExt
+        Public Function GetUndoEngine() As UndoEngineExt Implements IDesignSurfaceExt.GetUndoEngine
             Return _undoEngine
         End Function
 
         Private Function CreateRootComponentCore(controlType As Type, controlSize As Size, loader As DesignerLoader) As IComponent
-            Const _signature_ As String = _Name_ & "::CreateRootComponentCore()"
-
             Try
-                'step.1
-                'get the IDesignerHost
-                'if we are not not able to get it
-                'then rollback (return without do nothing)
-                'check if the root component has already been set
-                'if so then rollback (return without do nothing)
-                'step.2
-                'create a new root component and initialize it via its designer
-                'if the component has not a designer
-                'then rollback (return without do nothing)
-                'else do the initialization
-                Dim host As IDesignerHost = GetIDesignerHost()
-
+                Dim host As IDesignerHost = GetDesignerHost()
                 If host Is Nothing Then Return Nothing
-
-                'check If the root component has already been set
-                'if so then rollback (return without do nothing)
                 If host.RootComponent IsNot Nothing Then Return Nothing
-
-                'step.2
-                'create a new root component and initialize it via its designer
-                'if the component has not a designer
-                'then rollback (return without do nothing)
-                'else do the initialization
                 If loader IsNot Nothing Then
                     BeginLoad(loader)
-                    If LoadErrors.Count > 0 Then Throw New Exception($"{_signature_} - Exception: the BeginLoad(loader) failed!")
+                    If LoadErrors.Count > 0 Then Throw New Exception($"Exception: the BeginLoad(loader) failed!")
                 Else
                     BeginLoad(controlType)
-                    If LoadErrors.Count > 0 Then Throw New Exception($"{_signature_} - Exception: the BeginLoad(Type) failed! Some error during {controlType} loading")
+                    If LoadErrors.Count > 0 Then Throw New Exception($"Exception: the BeginLoad(Type) failed! Some error during {controlType} loading")
                 End If
-                'step.3
-                'try to modify the Size of the object just created
-                Dim ihost As IDesignerHost = GetIDesignerHost()
-                'Set the backcolor and the Size
-                Dim ctrl As Control = Nothing
-
+                Dim ctrl As Control
                 If TypeOf host.RootComponent Is Form Then
                     ctrl = TryCast(View, Control)
                     ctrl.BackColor = Color.LightGray
-                    'set the Size
                     Dim pdc As PropertyDescriptorCollection = TypeDescriptor.GetProperties(ctrl)
-                    'Sets a PropertyDescriptor to the specific property
                     Dim pdS As PropertyDescriptor = pdc.Find("Size", False)
-                    If pdS IsNot Nothing Then pdS.SetValue(ihost.RootComponent, controlSize)
+                    If pdS IsNot Nothing Then pdS.SetValue(host.RootComponent, controlSize)
                 ElseIf TypeOf host.RootComponent Is UserControl Then
                     ctrl = TryCast(View, Control)
                     ctrl.BackColor = Color.Gray
-                    'set the Size
                     Dim pdc As PropertyDescriptorCollection = TypeDescriptor.GetProperties(ctrl)
-                    'Sets a PropertyDescriptor to the specific property
                     Dim pdS As PropertyDescriptor = pdc.Find("Size", False)
-                    If pdS IsNot Nothing Then pdS.SetValue(ihost.RootComponent, controlSize)
+                    If pdS IsNot Nothing Then pdS.SetValue(host.RootComponent, controlSize)
                 ElseIf TypeOf host.RootComponent Is Control Then
                     ctrl = TryCast(View, Control)
                     ctrl.BackColor = Color.LightGray
-                    'set the Size
                     Dim pdc As PropertyDescriptorCollection = TypeDescriptor.GetProperties(ctrl)
-                    'Sets a PropertyDescriptor to the specific property
                     Dim pdS As PropertyDescriptor = pdc.Find("Size", False)
-                    If pdS IsNot Nothing Then pdS.SetValue(ihost.RootComponent, controlSize)
+                    If pdS IsNot Nothing Then pdS.SetValue(host.RootComponent, controlSize)
                 ElseIf TypeOf host.RootComponent Is Component Then
                     ctrl = TryCast(View, Control)
-                    'don't set the Size
                     ctrl.BackColor = Color.White
                 Else
-                    'Undefined Host Type
                     ctrl = TryCast(View, Control)
                     ctrl.BackColor = Color.Red
                 End If
-
-                Return ihost.RootComponent
-            Catch exx As Exception
-                Debug.WriteLine(exx.Message)
-                If exx.InnerException IsNot Nothing Then Debug.WriteLine(exx.InnerException.Message)
+                Return host.RootComponent
+            Catch ex As Exception
+                Debug.WriteLine(ex.Message)
+                If ex.InnerException IsNot Nothing Then Debug.WriteLine(ex.InnerException.Message)
                 Throw
             End Try
         End Function
@@ -180,39 +123,19 @@ Namespace Base
 
         Public Function CreateControl(controlType As Type, controlSize As Size, controlLocation As Point) As Control Implements IDesignSurfaceExt.CreateControl
             Try
-                'step.1
-                'get the IDesignerHost
-                'if we are not able to get it
-                'then rollback (return without do nothing)
-                'check if the root component has already been set
-                'if not so then rollback (return without do nothing)
-                Dim host As IDesignerHost = GetIDesignerHost()
+                Dim host As IDesignerHost = GetDesignerHost()
                 If host Is Nothing Then Return Nothing
-                'check if the root component has already been set
-                'if not so then rollback (return without do nothing)
                 If host.RootComponent Is Nothing Then Return Nothing
-                'step.2
-                'create a new component and initialize it via its designer
-                'if the component has not a designer
-                'then rollback (return without do nothing)
-                'else do the initialization
                 Dim newComp As IComponent = host.CreateComponent(controlType)
                 If newComp Is Nothing Then Return Nothing
                 Dim designer As IDesigner = host.GetDesigner(newComp)
                 If designer Is Nothing Then Return Nothing
                 If TypeOf designer Is IComponentInitializer Then CType(designer, IComponentInitializer).InitializeNewComponent(Nothing)
-                'step.3
-                'try to modify the Size/Location of the object just created
                 Dim pdc As PropertyDescriptorCollection = TypeDescriptor.GetProperties(newComp)
-                'Sets a PropertyDescriptor to the specific property.
                 Dim pdS As PropertyDescriptor = pdc.Find("Size", False)
                 If pdS IsNot Nothing Then pdS.SetValue(newComp, controlSize)
                 Dim pdL As PropertyDescriptor = pdc.Find("Location", False)
                 If pdL IsNot Nothing Then pdL.SetValue(newComp, controlLocation)
-                'step.4
-                'commit the Creation Operation
-                'adding the control to the DesignSurface's root component
-                'and return the control just created to let further initializations
                 CType(newComp, Control).Parent = TryCast(host.RootComponent, Control)
                 Return TryCast(newComp, Control)
             Catch exx As Exception
@@ -222,7 +145,7 @@ Namespace Base
             End Try
         End Function
 
-        Public Function GetIDesignerHost() As IDesignerHost Implements IDesignSurfaceExt.GetIDesignerHost
+        Public Function GetDesignerHost() As IDesignerHost Implements IDesignSurfaceExt.GetDesignerHost
             Return CType(GetService(GetType(IDesignerHost)), IDesignerHost)
         End Function
 
@@ -233,104 +156,159 @@ Namespace Base
             Return ctrl
         End Function
 
-#End Region
-
 #Region "TabOrder"
 
         Private _tabOrder As TabOrderHooker = Nothing
-        Private _tabOrderMode As Boolean = False
 
-        Public ReadOnly Property IsTabOrderMode As Boolean
-            Get
-                Return _tabOrderMode
-            End Get
-        End Property
+        Public Property IsTabOrderMode As Boolean = False
 
         Public Property TabOrder As TabOrderHooker
             Get
                 If _tabOrder Is Nothing Then _tabOrder = New TabOrderHooker()
                 Return _tabOrder
             End Get
-            Set(value As TabOrderHooker)
-                _tabOrder = value
+            Set
+                _tabOrder = Value
             End Set
         End Property
 
         Public Sub InvokeTabOrder()
-            TabOrder.HookTabOrder(GetIDesignerHost())
-            _tabOrderMode = True
+            TabOrder.HookTabOrder(GetDesignerHost())
+            IsTabOrderMode = True
         End Sub
 
         Public Sub DisposeTabOrder()
-            TabOrder.HookTabOrder(GetIDesignerHost())
-            _tabOrderMode = False
+            TabOrder.HookTabOrder(GetDesignerHost())
+            IsTabOrderMode = False
         End Sub
 
 #End Region
 
-#Region "UndoEngine"
-
         Private _undoEngine As UndoEngineExt = Nothing
-        Private _nameCreationService As NameCreationServiceImp = Nothing
-        Private _designerSerializationService As DesignerSerializationServiceImpl = Nothing
+        Private _nameCreationService As NameCreationService = Nothing
+        Private _designerSerializationService As DesignerSerializationService = Nothing
         Private _codeDomComponentSerializationService As CodeDomComponentSerializationService = Nothing
+        Private _toolboxService As ToolboxService = Nothing
 
-#End Region
-
-#Region "IToolboxService"
-
-        Private _toolboxService As ToolboxServiceImp = Nothing
-
-        Public Function GetIToolboxService() As ToolboxServiceImp Implements IDesignSurfaceExt.GetIToolboxService
-            Return CType(GetService(GetType(IToolboxService)), ToolboxServiceImp)
+        Public Function GetToolboxService() As ToolboxService Implements IDesignSurfaceExt.GetToolboxService
+            Return CType(GetService(GetType(IToolboxService)), ToolboxService)
         End Function
 
-#Region "drag&Drop"
+#Region "DragDrop"
 
-        Public Sub EnableDragandDrop() Implements IDesignSurfaceExt.EnableDragAndDrop
-            ' For the management of the drag and drop of the toolboxItems
+        Public Sub EnableDragAndDrop() Implements IDesignSurfaceExt.EnableDragAndDrop
             Dim ctrl As Control = GetView()
             If ctrl Is Nothing Then Return
             ctrl.AllowDrop = True
             AddHandler ctrl.DragDrop, AddressOf OnDragDrop
-            'enable the Dragitem inside the our Toolbox
-            Dim tbs As ToolboxServiceImp = GetIToolboxService()
+            Dim tbs As ToolboxService = GetToolboxService()
             If tbs Is Nothing Then Return
-            AddHandler tbs.Toolbox.MouseDown, AddressOf OnListboxMouseDown
+            AddHandler tbs.Toolbox.MouseDown, AddressOf OnListBoxMouseDown
         End Sub
 
-        'Management of the Drag&Drop of the toolboxItems contained inside our Toolbox
-        Private Sub OnListboxMouseDown(ByVal sender As Object, ByVal e As MouseEventArgs)
-            Dim tbs As ToolboxServiceImp = GetIToolboxService()
+        Private Sub OnListBoxMouseDown(sender As Object, e As MouseEventArgs)
+            Dim tbs As ToolboxService = GetToolboxService()
             If tbs Is Nothing Then Return
             If tbs.Toolbox Is Nothing Then Return
             If tbs.Toolbox.SelectedItem Is Nothing Then Return
             tbs.Toolbox.DoDragDrop(tbs.Toolbox.SelectedItem, DragDropEffects.Copy Or DragDropEffects.Move)
         End Sub
 
-        'Management of the drag and drop of the toolboxItems
-        Public Sub OnDragDrop(ByVal sender As Object, ByVal e As DragEventArgs)
-            'if the user don't drag a ToolboxItem
-            'then do nothing
+        Public Sub OnDragDrop(sender As Object, e As DragEventArgs)
             If Not e.Data.GetDataPresent(GetType(ToolboxItem)) Then
                 e.Effect = DragDropEffects.None
                 Return
             End If
-            'now retrieve the data node
             Dim item As ToolboxItem = TryCast(e.Data.GetData(GetType(ToolboxItem)), ToolboxItem)
             e.Effect = DragDropEffects.Copy
-            item.CreateComponents(GetIDesignerHost())
+            item.CreateComponents(GetDesignerHost())
         End Sub
 
 #End Region
 
-#End Region
+        Public Sub New()
+            MyBase.New()
+            InitServices()
+        End Sub
+
+        Public Sub New(parentProvider As IServiceProvider)
+            MyBase.New(parentProvider)
+            InitServices()
+        End Sub
+
+        Public Sub New(rootComponentType As Type)
+            MyBase.New(rootComponentType)
+            InitServices()
+        End Sub
+
+        Public Sub New(parentProvider As IServiceProvider, rootComponentType As Type)
+            MyBase.New(parentProvider, rootComponentType)
+            InitServices()
+        End Sub
+
+        Private Sub InitServices()
+            _nameCreationService = New NameCreationService()
+            If _nameCreationService IsNot Nothing Then
+                ServiceContainer.RemoveService(GetType(INameCreationService), False)
+                ServiceContainer.AddService(GetType(INameCreationService), _nameCreationService)
+            End If
+            _codeDomComponentSerializationService = New CodeDomComponentSerializationService(ServiceContainer)
+            If _codeDomComponentSerializationService IsNot Nothing Then
+                ServiceContainer.RemoveService(GetType(ComponentSerializationService), False)
+                ServiceContainer.AddService(GetType(ComponentSerializationService), _codeDomComponentSerializationService)
+            End If
+            _designerSerializationService = New DesignerSerializationService(ServiceContainer)
+            If _designerSerializationService IsNot Nothing Then
+                ServiceContainer.RemoveService(GetType(IDesignerSerializationService), False)
+                ServiceContainer.AddService(GetType(IDesignerSerializationService), _designerSerializationService)
+            End If
+            _undoEngine = New UndoEngineExt(ServiceContainer) With {
+                .Enabled = False
+            }
+            If _undoEngine IsNot Nothing Then
+                ServiceContainer.RemoveService(GetType(UndoEngine), False)
+                ServiceContainer.AddService(GetType(UndoEngine), _undoEngine)
+            End If
+            _menuCommandService = New Core.MenuCommandService(Me)
+            If _menuCommandService IsNot Nothing Then
+                ServiceContainer.RemoveService(GetType(IMenuCommandService), False)
+                ServiceContainer.AddService(GetType(IMenuCommandService), _menuCommandService)
+            End If
+            _toolboxService = New ToolboxService(GetDesignerHost())
+            If _toolboxService IsNot Nothing Then
+                ServiceContainer.RemoveService(GetType(IToolboxService), False)
+                ServiceContainer.AddService(GetType(IToolboxService), _toolboxService)
+            End If
+        End Sub
+
+        Public Sub DoAction(command As String) Implements IDesignSurfaceExt.DoAction
+            If String.IsNullOrEmpty(command) Then Return
+            Dim ims As IMenuCommandService = TryCast(GetService(GetType(IMenuCommandService)), IMenuCommandService)
+            If ims Is Nothing Then Return
+            Try
+                Select Case command.ToUpper()
+                    Case "CUT"
+                        ims.GlobalInvoke(StandardCommands.Cut)
+                    Case "COPY"
+                        ims.GlobalInvoke(StandardCommands.Copy)
+                    Case "PASTE"
+                        ims.GlobalInvoke(StandardCommands.Paste)
+                    Case "DELETE"
+                        ims.GlobalInvoke(StandardCommands.Delete)
+                End Select
+            Catch ex As Exception
+                Debug.WriteLine(ex.Message)
+                If ex.InnerException IsNot Nothing Then Debug.WriteLine(ex.InnerException.Message)
+                Throw
+            End Try
+        End Sub
 
 #Region "CodeBehind"
+        'TODO: Convert to DesignerLoader
 
         Public Function GetCodeBehind(lang As DesignLanguage) As String Implements IDesignSurfaceExt.GetCodeBehind
             Dim codeType As CodeTypeDeclaration
-            Dim host As IDesignerHost = GetIDesignerHost()
+            Dim host As IDesignerHost = GetDesignerHost()
             Dim root As IComponent = host.RootComponent
             Dim mngr As New DesignerSerializationManager(host)
             Using mngr.CreateSession
@@ -386,7 +364,7 @@ Namespace Base
         'TODO: More controls
         Public Sub LoadCodeBehind(code As String, lang As DesignLanguage) Implements IDesignSurfaceExt.LoadCodeBehind
             Dim tree As VisualBasicSyntaxTree = VisualBasicSyntaxTree.ParseText(code)
-            Dim host As IDesignerHost = GetIDesignerHost()
+            Dim host As IDesignerHost = GetDesignerHost()
             Dim root As IComponent = host.RootComponent
             Dim namespaces As New List(Of String)
             For Each import As ImportsStatementSyntax In tree.GetRoot.ChildNodes.OfType(Of ImportsStatementSyntax)
@@ -553,170 +531,5 @@ Namespace Base
 
 #End Region
 
-#Region "ctors"
-
-        Public Sub New()
-            MyBase.New()
-            InitServices()
-        End Sub
-
-        Public Sub New(parentProvider As IServiceProvider)
-            MyBase.New(parentProvider)
-            InitServices()
-        End Sub
-
-        Public Sub New(rootComponentType As Type)
-            MyBase.New(rootComponentType)
-            InitServices()
-        End Sub
-
-        Public Sub New(parentProvider As IServiceProvider, rootComponentType As Type)
-            MyBase.New(parentProvider, rootComponentType)
-            InitServices()
-        End Sub
-
-        'The DesignSurface class provides several design-time services automatically.
-        'The DesignSurface class adds all of its services in its constructor.
-        'Most of these services can be overridden by replacing them in the
-        'protected ServiceContainer property.To replace a service, override the constructor,
-        'call base, and make any changes through the protected ServiceContainer property.
-        Private Sub InitServices()
-            'each DesignSurface has its own default services
-            'We can leave the default services in their present state,
-            'or we can remove them and replace them with our own.
-            'Now add our own services using IServiceContainer
-            'Note
-            'before loading the root control in the design surface
-            'we must add an instance of naming service to the service container.
-            'otherwise the root component did not have a name and this caused
-            'troubles when we try to use the UndoEngine
-            'NameCreationService
-            _nameCreationService = New NameCreationServiceImp()
-
-            If _nameCreationService IsNot Nothing Then
-                ServiceContainer.RemoveService(GetType(INameCreationService), False)
-                ServiceContainer.AddService(GetType(INameCreationService), _nameCreationService)
-            End If
-            'CodeDomComponentSerializationService
-            _codeDomComponentSerializationService = New CodeDomComponentSerializationService(ServiceContainer)
-
-            If _codeDomComponentSerializationService IsNot Nothing Then
-                'the CodeDomComponentSerializationService is ready to be replaced
-                ServiceContainer.RemoveService(GetType(ComponentSerializationService), False)
-                ServiceContainer.AddService(GetType(ComponentSerializationService), _codeDomComponentSerializationService)
-            End If
-            '3. IDesignerSerializationService
-            _designerSerializationService = New DesignerSerializationServiceImpl(ServiceContainer)
-
-            If _designerSerializationService IsNot Nothing Then
-                '- the IDesignerSerializationService is ready to be replaced
-                ServiceContainer.RemoveService(GetType(IDesignerSerializationService), False)
-                ServiceContainer.AddService(GetType(IDesignerSerializationService), _designerSerializationService)
-            End If
-            '4. UndoEngine
-            _undoEngine = New UndoEngineExt(ServiceContainer)
-            'disable the UndoEngine
-            _undoEngine.Enabled = False
-
-            If _undoEngine IsNot Nothing Then
-                'the UndoEngine is ready to be replaced
-                ServiceContainer.RemoveService(GetType(UndoEngine), False)
-                ServiceContainer.AddService(GetType(UndoEngine), _undoEngine)
-            End If
-            '5. IMenuCommandService
-            _menuCommandService = New MenuCommandServiceExt(Me)
-
-            If _menuCommandService IsNot Nothing Then
-                'remove the old Service, i.e. the DesignsurfaceExt service
-                ServiceContainer.RemoveService(GetType(IMenuCommandService), False)
-                'add the new IMenuCommandService
-                ServiceContainer.AddService(GetType(IMenuCommandService), _menuCommandService)
-            End If
-            '6. IToolboxService
-            _toolboxService = New ToolboxServiceImp(GetIDesignerHost())
-
-            If _toolboxService IsNot Nothing Then
-                ServiceContainer.RemoveService(GetType(IToolboxService), False)
-                ServiceContainer.AddService(GetType(IToolboxService), _toolboxService)
-            End If
-        End Sub
-
-#End Region
-
-        'do some Edit menu command using the MenuCommandServiceImp
-        Public Sub DoAction(command As String) Implements IDesignSurfaceExt.DoAction
-            If String.IsNullOrEmpty(command) Then Return
-            Dim ims As IMenuCommandService = TryCast(GetService(GetType(IMenuCommandService)), IMenuCommandService)
-            If ims Is Nothing Then Return
-            Try
-                Select Case command.ToUpper()
-                    Case "CUT"
-                        ims.GlobalInvoke(StandardCommands.Cut)
-                    Case "COPY"
-                        ims.GlobalInvoke(StandardCommands.Copy)
-                    Case "PASTE"
-                        ims.GlobalInvoke(StandardCommands.Paste)
-                    Case "DELETE"
-                        ims.GlobalInvoke(StandardCommands.Delete)
-                    Case Else
-                End Select
-            Catch exx As Exception
-                Debug.WriteLine(exx.Message)
-                If exx.InnerException IsNot Nothing Then Debug.WriteLine(exx.InnerException.Message)
-                Throw
-            End Try
-        End Sub
-
     End Class
-
-    Public Enum DesignLanguage
-        CS = 0
-        VB = 1
-        XML = 2
-    End Enum
-
-    Public Interface IDesignSurfaceExt
-
-        'perform Cut/Copy/Paste/Delete commands
-        Sub DoAction(command As String)
-
-        'de/activate the TabOrder facility
-        Sub SwitchTabOrder()
-
-        'select the controls alignement mode
-        Sub UseSnapLines()
-
-        Sub UseGrid(gridSize As Size)
-
-        Sub UseGridWithoutSnapping(gridSize As Size)
-
-        Sub UseNoGuides()
-
-        'method usefull to create control without the ToolBox facility
-        Function CreateRootComponent(controlType As Type, controlSize As Size) As IComponent
-
-        Function CreateRootComponent(loader As DesignerLoader, controlSize As Size) As IComponent
-
-        Function CreateControl(controlType As Type, controlSize As Size, controlLocation As Point) As Control
-
-        'Get the UndoEngineExtended object
-        Function GetUndoEngineExt() As UndoEngineExt
-
-        'Get the IDesignerHost of the DesignSurface
-        Function GetIDesignerHost() As IDesignerHost
-
-        'the HostControl of the DesignSurface is just a normal Control
-        ' Get the HostControl
-        Function GetView() As Control
-
-        Function GetIToolboxService() As ToolboxServiceImp
-
-        Sub EnableDragAndDrop()
-
-        Function GetCodeBehind(lang As DesignLanguage) As String
-
-        Sub LoadCodeBehind(code As String, lang As DesignLanguage)
-
-    End Interface
-
 End Namespace

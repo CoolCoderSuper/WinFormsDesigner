@@ -50,7 +50,7 @@ Namespace Core
             End If
         End Sub
 
-        Protected Overrides Sub AddUndoUnit(ByVal unit As UndoEngine.UndoUnit)
+        Protected Overrides Sub AddUndoUnit(unit As UndoEngine.UndoUnit)
             undoStack.Push(unit)
         End Sub
 

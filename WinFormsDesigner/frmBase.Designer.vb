@@ -92,7 +92,6 @@ Partial Class frmBase
         '
         'ToolStripMenuItemPaste
         '
-        Me.ToolStripMenuItemPaste.Image = CType(resources.GetObject("ToolStripMenuItemPaste.Image"), System.Drawing.Image)
         Me.ToolStripMenuItemPaste.ImageTransparentColor = System.Drawing.Color.Magenta
         Me.ToolStripMenuItemPaste.Name = "ToolStripMenuItemPaste"
         Me.ToolStripMenuItemPaste.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.V), System.Windows.Forms.Keys)
@@ -101,7 +100,7 @@ Partial Class frmBase
         '
         'ToolStripMenuItemCopy
         '
-        Me.ToolStripMenuItemCopy.Image = CType(resources.GetObject("ToolStripMenuItemCopy.Image"), System.Drawing.Image)
+
         Me.ToolStripMenuItemCopy.ImageTransparentColor = System.Drawing.Color.Magenta
         Me.ToolStripMenuItemCopy.Name = "ToolStripMenuItemCopy"
         Me.ToolStripMenuItemCopy.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.C), System.Windows.Forms.Keys)
