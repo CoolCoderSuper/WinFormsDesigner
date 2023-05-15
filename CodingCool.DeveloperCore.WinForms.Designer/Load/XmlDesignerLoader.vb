@@ -626,7 +626,6 @@ Namespace Load
             Dim cleanup As String = sw.ToString().Replace("<DOCUMENT_ELEMENT>", "")
             cleanup = cleanup.Replace("</DOCUMENT_ELEMENT>", "")
             sw.Close()
-            _unsaved
             Return cleanup
         End Function
     End Class

@@ -2,12 +2,11 @@
 Imports System.ComponentModel.Design.Serialization
 Imports System.Drawing.Design
 Imports System.IO
-Imports System.Xml
 Imports CodingCool.DeveloperCore.WinForms.Designer.Base
 Imports CodingCool.DeveloperCore.WinForms.Designer.Core
 Imports CodingCool.DeveloperCore.WinForms.Designer.Load
-Imports Microsoft.VisualBasic.ApplicationServices
 'TODO: Toolbox
+'TODO: Loader should not be using the file system
 Public Class frmBase
     Private ReadOnly _designers As New List(Of IDesignSurfaceExt)
     Private Sub MainForm_Load(sender As Object, e As EventArgs) Handles Me.Load
