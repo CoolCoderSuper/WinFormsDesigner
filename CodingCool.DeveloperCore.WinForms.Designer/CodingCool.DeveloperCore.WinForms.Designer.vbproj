@@ -6,7 +6,6 @@
 	<UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Project\NRefactory.csproj" />
     <Reference Include="System.Design" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="4.5.0" />
   </ItemGroup>
