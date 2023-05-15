@@ -161,9 +161,9 @@ Namespace Core
             Toolbox.SelectedItem = toolboxItem
         End Sub
         
-        'TODO: Filter out dead components
+
         Public Sub AddItems(ParamArray assemblies As Assembly())
-            For Each t As Type In assemblies.Select(Function(x) x.GetTypes().Where(Function(y) y.IsSubclassOf(GetType(Component)))).SelectMany(Function(x) x).Where(Function(x) Not Toolbox.GetItems().Select(Function(y) y.TypeName).Contains(x.FullName))
+            For Each t As Type In assemblies.Select(Function(x) x.GetTypes().Where(Function(y) y.IsSubclassOf(GetType(Component)))).SelectMany(Function(x) x).Where(Function(x) Not Toolbox.GetItems().Select(Function(y) y.TypeName).Contains(x.FullName)).Where(Function(x) x.GetConstructors().Any(Function(y) Not y.GetParameters().Any()) AndAlso Not x.IsAbstract AndAlso x.IsPublic)
                 AddToolboxItem(New ToolboxItem(t))
             Next
         End Sub
