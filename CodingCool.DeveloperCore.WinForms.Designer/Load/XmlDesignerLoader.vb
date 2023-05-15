@@ -16,7 +16,7 @@ Namespace Load
         Private _root As IComponent
         Private _dirty As Boolean = True
         Private _unsaved As Boolean
-        Private _fileName As String
+        Private ReadOnly _code As String
         Private _host As IDesignerLoaderHost
         Private _xmlDocument As XmlDocument
         Private Shared ReadOnly _propertyAttributes As Attribute() = New Attribute() {DesignOnlyAttribute.No}
@@ -27,11 +27,11 @@ Namespace Load
             Modified = True
         End Sub
 
-        Public Sub New(fileName As String)
-            If fileName Is Nothing Then
-                Throw New ArgumentNullException(NameOf(fileName))
+        Public Sub New(code As String)
+            If code Is Nothing Then
+                Throw New ArgumentNullException(NameOf(code))
             End If
-            _fileName = fileName
+            _code = code
         End Sub
 
         Protected Overrides Sub PerformLoad(designerSerializationManager As IDesignerSerializationManager)
@@ -42,7 +42,7 @@ Namespace Load
             Dim errors As ArrayList = New ArrayList()
             Dim successful As Boolean = True
             Dim baseClassName As String
-            If _fileName Is Nothing Then
+            If _code Is Nothing Then
                 If _rootComponentType = GetType(Form) Then
                     _host.CreateComponent(GetType(Form))
                     baseClassName = "Form1"
@@ -56,7 +56,7 @@ Namespace Load
                     Throw New Exception("Undefined Host Type: " & _rootComponentType.ToString())
                 End If
             Else
-                baseClassName = ReadFile(_fileName, errors, _xmlDocument)
+                baseClassName = ReadCode(_code, errors, _xmlDocument)
             End If
             Dim cs As IComponentChangeService = TryCast(_host.GetService(GetType(IComponentChangeService)), IComponentChangeService)
             If cs IsNot Nothing Then
@@ -307,11 +307,11 @@ Namespace Load
             Return node
         End Function
 
-        Private Function ReadFile(fileName As String, errors As ArrayList, <Out> ByRef document As XmlDocument) As String
+        Private Function ReadCode(fileName As String, errors As ArrayList, <Out> ByRef document As XmlDocument) As String
             Dim baseClass As String = Nothing
 
             Try
-                Dim sr As StreamReader = New StreamReader(fileName)
+                Dim sr As New StringReader(fileName)
                 Dim cleandown As String = sr.ReadToEnd()
                 cleandown = "<DOCUMENT_ELEMENT>" & cleandown & "</DOCUMENT_ELEMENT>"
                 Dim doc As XmlDocument = New XmlDocument()

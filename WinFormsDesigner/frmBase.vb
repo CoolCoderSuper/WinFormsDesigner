@@ -6,7 +6,6 @@ Imports CodingCool.DeveloperCore.WinForms.Designer.Base
 Imports CodingCool.DeveloperCore.WinForms.Designer.Core
 Imports CodingCool.DeveloperCore.WinForms.Designer.Load
 'TODO: Toolbox
-'TODO: Loader should not be using the file system
 Public Class frmBase
     Private ReadOnly _designers As New List(Of IDesignSurfaceExt)
     Private Sub MainForm_Load(sender As Object, e As EventArgs) Handles Me.Load
@@ -184,7 +183,7 @@ Public Class frmBase
         Dim ofd As New OpenFileDialog With {
             .Filter = "XML Files|*.xml"
         }
-        Return If(ofd.ShowDialog() = DialogResult.OK, New XmlDesignerLoader(ofd.FileName), New XmlDesignerLoader(GetType(UserControl)))
+        Return If(ofd.ShowDialog() = DialogResult.OK, New XmlDesignerLoader(File.ReadAllText(ofd.FileName)), New XmlDesignerLoader(GetType(UserControl)))
     End Function
 
     Private Sub CloseToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CloseToolStripMenuItem.Click
