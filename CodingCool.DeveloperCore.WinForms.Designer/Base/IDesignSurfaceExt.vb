@@ -33,6 +33,8 @@ Namespace Base
         Function GetView() As Control
 
         Function GetToolboxService() As ToolboxService
+        
+        Function GetLoader() As BasicDesignerLoader
 
         Sub EnableDragAndDrop()
 

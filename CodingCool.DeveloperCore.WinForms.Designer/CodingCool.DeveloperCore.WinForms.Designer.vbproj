@@ -4,6 +4,7 @@
     <RootNamespace>CodingCool.DeveloperCore.WinForms.Designer</RootNamespace>
     <AssemblyName>CodingCool.DeveloperCore.WinForms.Designer</AssemblyName>
 	<UseWindowsForms>true</UseWindowsForms>
+    <EnableUnsafeBinaryFormatterSerialization>True</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Design" />

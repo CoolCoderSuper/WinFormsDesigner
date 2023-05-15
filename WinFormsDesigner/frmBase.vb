@@ -1,7 +1,12 @@
 ﻿Imports System.ComponentModel.Design
+Imports System.ComponentModel.Design.Serialization
 Imports System.Drawing.Design
+Imports System.IO
+Imports System.Xml
 Imports CodingCool.DeveloperCore.WinForms.Designer.Base
 Imports CodingCool.DeveloperCore.WinForms.Designer.Core
+Imports CodingCool.DeveloperCore.WinForms.Designer.Load
+Imports Microsoft.VisualBasic.ApplicationServices
 
 Public Class frmBase
     Private ReadOnly _designers As New List(Of IDesignSurfaceExt)
@@ -78,8 +83,8 @@ Public Class frmBase
         Dim designer As DesignSurfaceExt = CreateDesignSurface()
         designer.UseSnapLines()
         Try
-            Dim rootComponent As Form
-            rootComponent = CType(designer.CreateRootComponent(GetType(Form), New Size(400, 400)), Form)
+            Dim rootComponent As UserControl
+            rootComponent = CType(designer.CreateRootComponent(New XmlDesignerLoader("C:\CodingCool\Code\Projects\test.xml"), New Size(400, 400)), UserControl)
             rootComponent.Text = $"Root Component hosted by the DesignSurface N.{tabPageSelectedIndex}"
             rootComponent.BackColor = Color.Yellow
             Dim view As Control = designer.GetView()
@@ -101,8 +106,8 @@ Public Class frmBase
         Dim designer As DesignSurfaceExt = CreateDesignSurface()
         designer.UseGrid(New Size(32, 32))
         Try
-            Dim rootComponent As Form
-            rootComponent = CType(designer.CreateRootComponent(GetType(Form), New Size(400, 400)), Form)
+            Dim rootComponent As UserControl
+            rootComponent = CType(designer.CreateRootComponent(GetType(UserControl), New Size(400, 400)), UserControl)
             rootComponent.Text = $"Root Component hosted by the DesignSurface N.{tabPageSelectedIndex}"
             rootComponent.BackColor = Color.YellowGreen
             Dim view As Control = designer.GetView()
@@ -123,8 +128,8 @@ Public Class frmBase
         Dim designer As DesignSurfaceExt = CreateDesignSurface()
         designer.UseNoGuides()
         Try
-            Dim rootComponent As Form
-            rootComponent = CType(designer.CreateRootComponent(GetType(Form), New Size(400, 400)), Form)
+            Dim rootComponent As UserControl
+            rootComponent = CType(designer.CreateRootComponent(GetType(UserControl), New Size(400, 400)), UserControl)
             rootComponent.Text = $"Root Component hosted by the DesignSurface N.{tabPageSelectedIndex}"
             rootComponent.BackColor = Color.LightGray
             Dim view As Control = designer.GetView()
@@ -151,14 +156,25 @@ Public Class frmBase
 
     Private Sub SaveToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveToolStripMenuItem.Click
         Dim designer As IDesignSurfaceExt = GetCurrentDesigner()
-        If designer IsNot Nothing Then
-            IO.File.WriteAllText("C:\CodingCool\Code\Projects\test.vb", designer.GetCodeBehind(DesignLanguage.VB))
-        End If
+        Dim loader As XmlDesignerLoader = designer.GetLoader()
+        loader.Flush()
+        Dim sw As StringWriter = New StringWriter()
+        Dim xtw As XmlTextWriter = New XmlTextWriter(sw)
+        xtw.Formatting = Formatting.Indented
+        loader.XmlDocument.WriteTo(xtw)
+        Dim cleanup As String = sw.ToString().Replace("<DOCUMENT_ELEMENT>", "")
+        cleanup = cleanup.Replace("</DOCUMENT_ELEMENT>", "")
+        xtw.Close()
+        Dim file As StreamWriter = New StreamWriter("C:\CodingCool\Code\Projects\test.xml")
+        file.Write(cleanup)
+        file.Close()
+        'IO.File.WriteAllText("C:\CodingCool\Code\Projects\test.vb", designer.GetCodeBehind(DesignLanguage.VB))
     End Sub
 
     Private Sub LoadToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles LoadToolStripMenuItem.Click
         Dim designer As IDesignSurfaceExt = GetCurrentDesigner()
-        designer.LoadCodeBehind(IO.File.ReadAllText("C:\CodingCool\Code\Projects\test.vb"), DesignLanguage.VB)
+        
+        'designer.LoadCodeBehind(IO.File.ReadAllText("C:\CodingCool\Code\Projects\test.vb"), DesignLanguage.VB)
     End Sub
 
 End Class

@@ -73,6 +73,7 @@ Namespace Base
                 If host Is Nothing Then Return Nothing
                 If host.RootComponent IsNot Nothing Then Return Nothing
                 If loader IsNot Nothing Then
+                    _loader = loader
                     BeginLoad(loader)
                     If LoadErrors.Count > 0 Then Throw New Exception($"Exception: the BeginLoad(loader) failed!")
                 Else
@@ -184,14 +185,19 @@ Namespace Base
 
 #End Region
 
-        Private _undoEngine As UndoEngineExt = Nothing
-        Private _nameCreationService As NameCreationService = Nothing
-        Private _designerSerializationService As DesignerSerializationService = Nothing
-        Private _codeDomComponentSerializationService As CodeDomComponentSerializationService = Nothing
-        Private _toolboxService As ToolboxService = Nothing
+        Private _undoEngine As UndoEngineExt
+        Private _nameCreationService As NameCreationService
+        Private _designerSerializationService As DesignerSerializationService
+        Private _codeDomComponentSerializationService As CodeDomComponentSerializationService
+        Private _toolboxService As ToolboxService
+        Private _loader As BasicDesignerLoader
 
         Public Function GetToolboxService() As ToolboxService Implements IDesignSurfaceExt.GetToolboxService
             Return CType(GetService(GetType(IToolboxService)), ToolboxService)
+        End Function
+        
+        Public Function GetLoader() As BasicDesignerLoader Implements IDesignSurfaceExt.GetLoader
+            Return _loader
         End Function
 
 #Region "DragDrop"
