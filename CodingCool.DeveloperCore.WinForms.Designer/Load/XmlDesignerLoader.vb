@@ -5,9 +5,6 @@ Imports System.Globalization
 Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.InteropServices
-Imports System.Text
-Imports System.Text.Json
-Imports System.Text.Json.Serialization
 Imports System.Threading
 Imports System.Windows.Forms
 Imports System.Xml
@@ -103,21 +100,7 @@ Namespace Load
             _unsaved = True
         End Sub
 
-        Friend Function PromptDispose() As Boolean
-            If _dirty OrElse _unsaved Then
-
-                Select Case MessageBox.Show("Save changes to existing designer?", "Unsaved Changes", MessageBoxButtons.YesNoCancel)
-                    Case DialogResult.Yes
-                        Save(False)
-                    Case DialogResult.Cancel
-                        Return False
-                End Select
-            End If
-
-            Return True
-        End Function
-
-        Public Sub PerformFlushWorker()
+        Private Sub PerformFlushWorker()
             Dim document As XmlDocument = New XmlDocument()
             document.AppendChild(document.CreateElement("DOCUMENT_ELEMENT"))
             Dim idh As IDesignerHost = CType(Me._host.GetService(GetType(IDesignerHost)), IDesignerHost)
@@ -127,12 +110,10 @@ Namespace Load
             document.DocumentElement.AppendChild(WriteObject(document, nametable, _root))
 
             For Each comp As IComponent In idh.Container.Components
-
                 If comp IsNot _root AndAlso Not nametable.ContainsKey(comp) Then
                     document.DocumentElement.AppendChild(WriteObject(document, nametable, comp))
                 End If
             Next
-
             _xmlDocument = document
         End Sub
 
@@ -411,8 +392,9 @@ Namespace Load
             Dim mi As MemberInfo = ByteArrayToObject(Of MemberInfo)(data)'CType(formatter.Deserialize(stream), MemberInfo)
             Dim args As Object() = Nothing
 
-            If TypeOf mi Is MethodBase Then
-                Dim paramInfos As ParameterInfo() = (CType(mi, MethodBase)).GetParameters()
+            Dim memberInfo As MethodBase = TryCast(mi, MethodBase)
+            If memberInfo IsNot Nothing
+                Dim paramInfos As ParameterInfo() = (memberInfo).GetParameters()
                 args = New Object(paramInfos.Length - 1) {}
                 Dim idx As Integer = 0
 
@@ -644,88 +626,8 @@ Namespace Load
             Dim cleanup As String = sw.ToString().Replace("<DOCUMENT_ELEMENT>", "")
             cleanup = cleanup.Replace("</DOCUMENT_ELEMENT>", "")
             sw.Close()
+            _unsaved
             Return cleanup
         End Function
-
-        Public Sub Save()
-            Save(False)
-        End Sub
-
-        Public Sub Save(forceFilePrompt As Boolean)
-            Try
-                Flush()
-                Dim filterIndex As Integer = 3
-
-                If (_fileName Is Nothing) OrElse forceFilePrompt Then
-                    Dim dlg As SaveFileDialog = New SaveFileDialog()
-                    dlg.DefaultExt = "xml"
-                    dlg.Filter = "XML Files|*.xml"
-
-                    If dlg.ShowDialog() = DialogResult.OK Then
-                        _fileName = dlg.FileName
-                        filterIndex = dlg.FilterIndex
-                    End If
-                End If
-
-                If _fileName IsNot Nothing Then
-
-                    Select Case filterIndex
-                        Case 1
-                            Dim sw As StringWriter = New StringWriter()
-                            Dim xtw As XmlTextWriter = New XmlTextWriter(sw)
-                            xtw.Formatting = Formatting.Indented
-                            _xmlDocument.WriteTo(xtw)
-                            Dim cleanup As String = sw.ToString().Replace("<DOCUMENT_ELEMENT>", "")
-                            cleanup = cleanup.Replace("</DOCUMENT_ELEMENT>", "")
-                            xtw.Close()
-                            Dim file As StreamWriter = New StreamWriter(_fileName)
-                            file.Write(cleanup)
-                            file.Close()
-                    End Select
-
-                    _unsaved = False
-                End If
-
-            Catch ex As Exception
-                MessageBox.Show("Error during save: " & ex.ToString())
-            End Try
-        End Sub
     End Class
-
-    Friend Module Binary
-        ''' <summary>
-        ''' Convert an object to a Byte Array.
-        ''' </summary>
-        Public Function ObjectToByteArray(objData As Object) As Byte()
-            If objData Is Nothing Then Return Nothing
-
-            Return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(objData, GetJsonSerializerOptions()))
-        End Function
-
-        ''' <summary>
-        ''' Convert a byte array to an Object of T.
-        ''' </summary>
-        Public Function ByteArrayToObject(Of T)(byteArray As Byte()) As T
-            If byteArray Is Nothing OrElse Not byteArray.Any() Then Return Nothing
-            Return JsonSerializer.Deserialize(Of T)(byteArray, GetJsonSerializerOptions())
-        End Function
-
-        ''' <summary>
-        ''' Convert a byte array to an Object.
-        ''' </summary>
-        Public Function ByteArrayToObject(byteArray As Byte(), returnType As Type) As Object
-            If byteArray Is Nothing OrElse Not byteArray.Any() Then Return Nothing
-            Return JsonSerializer.Deserialize(byteArray, returnType, GetJsonSerializerOptions())
-        End Function
-        
-        Private Function GetJsonSerializerOptions() As JsonSerializerOptions
-            Return New JsonSerializerOptions() With {
-                .PropertyNamingPolicy = Nothing,
-                .WriteIndented = True,
-                .AllowTrailingCommas = True,
-                .DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-                }
-        End Function
-    End Module
-
 End Namespace

@@ -158,7 +158,27 @@ Public Class frmBase
     Private Sub SaveToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveToolStripMenuItem.Click
         Dim designer As IDesignSurfaceExt = GetCurrentDesigner()
         Dim loader As XmlDesignerLoader = designer.GetLoader()
-        loader.Save(True)
+        Try
+            Dim fileName As String
+            Dim filterIndex As Integer = 3
+                Dim dlg As SaveFileDialog = New SaveFileDialog()
+                dlg.DefaultExt = "xml"
+                dlg.Filter = "XML Files|*.xml"
+                If dlg.ShowDialog() = DialogResult.OK Then
+                    fileName = dlg.FileName
+                    filterIndex = dlg.FilterIndex
+                End If
+            If fileName IsNot Nothing Then
+                Select Case filterIndex
+                    Case 1
+                        Dim file As StreamWriter = New StreamWriter(fileName)
+                        file.Write(loader.GetCode())
+                        file.Close()
+                End Select
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Error during save: " & ex.ToString())
+        End Try
     End Sub
     
     Private Shared Function GetLoader() As BasicDesignerLoader
