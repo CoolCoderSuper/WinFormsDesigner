@@ -1,5 +1,7 @@
-﻿Imports System.ComponentModel.Design
+﻿Imports System.ComponentModel
+Imports System.ComponentModel.Design
 Imports System.Drawing.Design
+Imports System.Reflection
 Imports System.Windows.Forms
 
 Namespace Core
@@ -157,6 +159,13 @@ Namespace Core
         Private Sub SetSelectedToolboxItem(toolboxItem As ToolboxItem) Implements IToolboxService.SetSelectedToolboxItem
             If Toolbox Is Nothing Then Return
             Toolbox.SelectedItem = toolboxItem
+        End Sub
+        
+        'TODO: Filter out dead components
+        Public Sub AddItems(ParamArray assemblies As Assembly())
+            For Each t As Type In assemblies.Select(Function(x) x.GetTypes().Where(Function(y) y.IsSubclassOf(GetType(Component)))).SelectMany(Function(x) x).Where(Function(x) Not Toolbox.GetItems().Select(Function(y) y.TypeName).Contains(x.FullName))
+                AddToolboxItem(New ToolboxItem(t))
+            Next
         End Sub
     End Class
 End Namespace

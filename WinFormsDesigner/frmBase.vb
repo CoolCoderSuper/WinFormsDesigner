@@ -5,7 +5,7 @@ Imports System.IO
 Imports CodingCool.DeveloperCore.WinForms.Designer.Base
 Imports CodingCool.DeveloperCore.WinForms.Designer.Core
 Imports CodingCool.DeveloperCore.WinForms.Designer.Load
-'TODO: Toolbox
+
 Public Class frmBase
     Private ReadOnly _designers As New List(Of IDesignSurfaceExt)
     Private Sub MainForm_Load(sender As Object, e As EventArgs) Handles Me.Load
@@ -14,21 +14,6 @@ Public Class frmBase
             .Bitmap = New Bitmap(16, 16)
         }
         lstToolbox.Items.Add(toolPointer)
-        lstToolbox.Items.Add(New ToolboxItem(GetType(Button)))
-        lstToolbox.Items.Add(New ToolboxItem(GetType(ListView)))
-        lstToolbox.Items.Add(New ToolboxItem(GetType(TreeView)))
-        lstToolbox.Items.Add(New ToolboxItem(GetType(TextBox)))
-        lstToolbox.Items.Add(New ToolboxItem(GetType(Label)))
-        lstToolbox.Items.Add(New ToolboxItem(GetType(TabControl)))
-        lstToolbox.Items.Add(New ToolboxItem(GetType(OpenFileDialog)))
-        lstToolbox.Items.Add(New ToolboxItem(GetType(CheckBox)))
-        lstToolbox.Items.Add(New ToolboxItem(GetType(ComboBox)))
-        lstToolbox.Items.Add(New ToolboxItem(GetType(GroupBox)))
-        lstToolbox.Items.Add(New ToolboxItem(GetType(ImageList)))
-        lstToolbox.Items.Add(New ToolboxItem(GetType(Panel)))
-        lstToolbox.Items.Add(New ToolboxItem(GetType(ProgressBar)))
-        lstToolbox.Items.Add(New ToolboxItem(GetType(ToolStrip)))
-        lstToolbox.Items.Add(New ToolboxItem(GetType(ToolTip)))
         AddHandler tcDesigners.Selected, AddressOf OnTabPageSelected
     End Sub
 
@@ -149,7 +134,10 @@ Public Class frmBase
         Dim selectionService As ISelectionService = CType((designer.GetDesignerHost().GetService(GetType(ISelectionService))), ISelectionService)
         If selectionService IsNot Nothing Then AddHandler selectionService.SelectionChanged, AddressOf OnSelectionChanged
         Dim tbox As ToolboxService = designer.GetToolboxService()
-        If tbox IsNot Nothing Then tbox.Toolbox = lstToolbox
+        If tbox IsNot Nothing Then
+            tbox.Toolbox = lstToolbox
+            tbox.AddItems(GetType(Form).Assembly)
+        End If
         Return designer
     End Function
 

@@ -54,8 +54,8 @@ Namespace Base
             serviceProvider.AddService(GetType(DesignerOptionService), noGuidsService)
         End Sub
 
-        Public Function GetUndoEngine() As UndoEngineExt Implements IDesignSurfaceExt.GetUndoEngine
-            Return _undoEngine
+        Public Function GetUndoEngine() As CustomUndoEngine Implements IDesignSurfaceExt.GetUndoEngine
+            Return _customUndoEngine
         End Function
 
         Private Function CreateRootComponentCore(controlType As Type, controlSize As Size, loader As DesignerLoader) As IComponent
@@ -176,7 +176,7 @@ Namespace Base
 
 #End Region
 
-        Private _undoEngine As UndoEngineExt
+        Private _customUndoEngine As CustomUndoEngine
         Private _nameCreationService As NameCreationService
         Private _designerSerializationService As DesignerSerializationService
         Private _codeDomComponentSerializationService As CodeDomComponentSerializationService
@@ -259,12 +259,12 @@ Namespace Base
                 ServiceContainer.RemoveService(GetType(IDesignerSerializationService), False)
                 ServiceContainer.AddService(GetType(IDesignerSerializationService), _designerSerializationService)
             End If
-            _undoEngine = New UndoEngineExt(ServiceContainer) With {
+            _customUndoEngine = New CustomUndoEngine(ServiceContainer) With {
                 .Enabled = False
             }
-            If _undoEngine IsNot Nothing Then
+            If _customUndoEngine IsNot Nothing Then
                 ServiceContainer.RemoveService(GetType(UndoEngine), False)
-                ServiceContainer.AddService(GetType(UndoEngine), _undoEngine)
+                ServiceContainer.AddService(GetType(UndoEngine), _customUndoEngine)
             End If
             _menuCommandService = New Core.MenuCommandService(Me)
             If _menuCommandService IsNot Nothing Then

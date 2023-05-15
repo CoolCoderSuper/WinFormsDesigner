@@ -26,7 +26,7 @@ Namespace Base
 
         Function CreateControl(controlType As Type, controlSize As Size, controlLocation As Point) As Control
         
-        Function GetUndoEngine() As UndoEngineExt
+        Function GetUndoEngine() As CustomUndoEngine
         
         Function GetDesignerHost() As IDesignerHost
         
