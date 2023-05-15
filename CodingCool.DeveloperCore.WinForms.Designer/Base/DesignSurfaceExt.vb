@@ -1,19 +1,10 @@
-﻿Imports System.CodeDom
-Imports System.CodeDom.Compiler
-Imports System.ComponentModel
+﻿Imports System.ComponentModel
 Imports System.ComponentModel.Design
 Imports System.ComponentModel.Design.Serialization
 Imports System.Drawing
 Imports System.Drawing.Design
-Imports System.Globalization
-Imports System.IO
-Imports System.Reflection
-Imports System.Text
 Imports System.Windows.Forms
 Imports CodingCool.DeveloperCore.WinForms.Designer.Core
-Imports Microsoft.CodeAnalysis.VisualBasic
-Imports Microsoft.CodeAnalysis.VisualBasic.Syntax
-Imports Microsoft.CSharp
 
 Namespace Base
 
@@ -309,233 +300,233 @@ Namespace Base
             End Try
         End Sub
 
-#Region "CodeBehind"
-        'TODO: Convert to DesignerLoader
+        '#Region "CodeBehind"
+        '        'TODO: Convert to DesignerLoader
 
-        Public Function GetCodeBehind(lang As DesignLanguage) As String Implements IDesignSurfaceExt.GetCodeBehind
-            Dim codeType As CodeTypeDeclaration
-            Dim host As IDesignerHost = GetDesignerHost()
-            Dim root As IComponent = host.RootComponent
-            Dim mngr As New DesignerSerializationManager(host)
-            Using mngr.CreateSession
-                Dim serializer As TypeCodeDomSerializer = mngr.GetSerializer(root.GetType, GetType(TypeCodeDomSerializer))
-                codeType = serializer.Serialize(mngr, root, host.Container.Components)
-                codeType.IsPartial = True
-                codeType.Members.OfType(Of CodeConstructor).FirstOrDefault.Attributes = MemberAttributes.Public
-            End Using
-            Dim builder As New StringBuilder
-            Dim options As New CodeGeneratorOptions With {
-                .BracingStyle = "C",
-                .BlankLinesBetweenMembers = False
-            }
-            Using writer = New StringWriter(builder, CultureInfo.InvariantCulture)
-                Select Case lang
-                    Case DesignLanguage.CS
-                        Using csProv = New CSharpCodeProvider
-                            csProv.GenerateCodeFromType(codeType, writer, options)
-                        End Using
-                    Case DesignLanguage.VB
-                        Using vbProv = New VBCodeProvider
-                            vbProv.GenerateCodeFromType(codeType, writer, options)
-                        End Using
-                    Case Else
-                        Throw New Exception("Invalid language")
-                End Select
-            End Using
-            Return builder.ToString
-        End Function
+        '        Public Function GetCodeBehind(lang As DesignLanguage) As String Implements IDesignSurfaceExt.GetCodeBehind
+        '            Dim codeType As CodeTypeDeclaration
+        '            Dim host As IDesignerHost = GetDesignerHost()
+        '            Dim root As IComponent = host.RootComponent
+        '            Dim mngr As New DesignerSerializationManager(host)
+        '            Using mngr.CreateSession
+        '                Dim serializer As TypeCodeDomSerializer = mngr.GetSerializer(root.GetType, GetType(TypeCodeDomSerializer))
+        '                codeType = serializer.Serialize(mngr, root, host.Container.Components)
+        '                codeType.IsPartial = True
+        '                codeType.Members.OfType(Of CodeConstructor).FirstOrDefault.Attributes = MemberAttributes.Public
+        '            End Using
+        '            Dim builder As New StringBuilder
+        '            Dim options As New CodeGeneratorOptions With {
+        '                .BracingStyle = "C",
+        '                .BlankLinesBetweenMembers = False
+        '            }
+        '            Using writer = New StringWriter(builder, CultureInfo.InvariantCulture)
+        '                Select Case lang
+        '                    Case DesignLanguage.CS
+        '                        Using csProv = New CSharpCodeProvider
+        '                            csProv.GenerateCodeFromType(codeType, writer, options)
+        '                        End Using
+        '                    Case DesignLanguage.VB
+        '                        Using vbProv = New VBCodeProvider
+        '                            vbProv.GenerateCodeFromType(codeType, writer, options)
+        '                        End Using
+        '                    Case Else
+        '                        Throw New Exception("Invalid language")
+        '                End Select
+        '            End Using
+        '            Return builder.ToString
+        '        End Function
 
-        'Public Sub LoadCodeBehind(code As String, lang As DesignLanguage) Implements IDesignSurfaceExt.LoadCodeBehind
-        '    Dim host As IDesignerHost = GetIDesignerHost()
-        '    Dim root As IComponent = host.RootComponent
-        '    Dim mngr As New DesignerSerializationManager(host)
-        '    Using mngr.CreateSession
-        '        Dim parser As IParser = ParserFactory.CreateParser(If(lang = DesignLanguage.VB, SupportedLanguage.VBNet, SupportedLanguage.CSharp), New StringReader(code))
-        '        parser.Parse()
-        '        Dim visit As New CodeDomVisitor
-        '        visit.VisitCompilationUnit(parser.CompilationUnit, Nothing)
-        '        Dim codeType As CodeTypeDeclaration = visit.codeCompileUnit.Namespaces(0).Types(0)
-        '        Dim serializer As TypeCodeDomSerializer = mngr.GetSerializer(root.GetType, GetType(TypeCodeDomSerializer))
-        '        serializer.Deserialize(mngr, codeType)
-        '    End Using
-        'End Sub
+        '        'Public Sub LoadCodeBehind(code As String, lang As DesignLanguage) Implements IDesignSurfaceExt.LoadCodeBehind
+        '        '    Dim host As IDesignerHost = GetIDesignerHost()
+        '        '    Dim root As IComponent = host.RootComponent
+        '        '    Dim mngr As New DesignerSerializationManager(host)
+        '        '    Using mngr.CreateSession
+        '        '        Dim parser As IParser = ParserFactory.CreateParser(If(lang = DesignLanguage.VB, SupportedLanguage.VBNet, SupportedLanguage.CSharp), New StringReader(code))
+        '        '        parser.Parse()
+        '        '        Dim visit As New CodeDomVisitor
+        '        '        visit.VisitCompilationUnit(parser.CompilationUnit, Nothing)
+        '        '        Dim codeType As CodeTypeDeclaration = visit.codeCompileUnit.Namespaces(0).Types(0)
+        '        '        Dim serializer As TypeCodeDomSerializer = mngr.GetSerializer(root.GetType, GetType(TypeCodeDomSerializer))
+        '        '        serializer.Deserialize(mngr, codeType)
+        '        '    End Using
+        '        'End Sub
 
-        'TODO: Support referencing other object to set value
-        'TODO: Support call methods to set values
-        'TODO: Support more expressions
-        'TODO: Support resources
-        'TODO: Arrays
-        'TODO: Not fully qualified types
-        'TODO: Not using Me keyword
-        'TODO: More controls
-        Public Sub LoadCodeBehind(code As String, lang As DesignLanguage) Implements IDesignSurfaceExt.LoadCodeBehind
-            Dim tree As VisualBasicSyntaxTree = VisualBasicSyntaxTree.ParseText(code)
-            Dim host As IDesignerHost = GetDesignerHost()
-            Dim root As IComponent = host.RootComponent
-            Dim namespaces As New List(Of String)
-            For Each import As ImportsStatementSyntax In tree.GetRoot.ChildNodes.OfType(Of ImportsStatementSyntax)
+        '        'TODO: Support referencing other object to set value
+        '        'TODO: Support call methods to set values
+        '        'TODO: Support more expressions
+        '        'TODO: Support resources
+        '        'TODO: Arrays
+        '        'TODO: Not fully qualified types
+        '        'TODO: Not using Me keyword
+        '        'TODO: More controls
+        '        Public Sub LoadCodeBehind(code As String, lang As DesignLanguage) Implements IDesignSurfaceExt.LoadCodeBehind
+        '            Dim tree As VisualBasicSyntaxTree = VisualBasicSyntaxTree.ParseText(code)
+        '            Dim host As IDesignerHost = GetDesignerHost()
+        '            Dim root As IComponent = host.RootComponent
+        '            Dim namespaces As New List(Of String)
+        '            For Each import As ImportsStatementSyntax In tree.GetRoot.ChildNodes.OfType(Of ImportsStatementSyntax)
 
-            Next
-            Dim cls As ClassBlockSyntax = tree.GetRoot.ChildNodes.OfType(Of ClassBlockSyntax).FirstOrDefault
-            If cls Is Nothing Then Throw New Exception("No class to design.")
-            If cls.Inherits.Count <> 1 Then Throw New Exception("Cannot design more than one base type.")
-            Dim baseType As Type = GetTypeFromString(cls.Inherits.First().Types.First().ToString)
-            If Not GetType(Component).IsAssignableFrom(baseType) Then Throw New Exception($"The type {baseType.Name} is not supported.")
-            Dim components As New Dictionary(Of String, Component)
-            For Each f As FieldDeclarationSyntax In cls.ChildNodes.OfType(Of FieldDeclarationSyntax)
-                If f.Declarators.Count <> 1 Then Throw New Exception("Invalid declaration.")
-                Dim name As String = f.Declarators.First.Names.First.ToString
-                If f.Declarators.First.AsClause Is Nothing Then Throw New Exception("Invalid declaration. Please specify an as clause.")
-                If TypeOf f.Declarators.First.AsClause IsNot SimpleAsClauseSyntax Then Throw New Exception("Invalid declaration. Invalid as clause.")
-                Dim clause As SimpleAsClauseSyntax = f.Declarators.First.AsClause
-                Dim ctrlType As Type = GetTypeFromString(clause.Type.ToString)
-                If GetType(Component).IsAssignableFrom(ctrlType) Then
-                    components.Add(name, Nothing)
-                Else
-                    Throw New Exception($"The type {ctrlType.Name} is not supported.")
-                End If
-            Next
-            Dim init As MethodBlockSyntax = cls.ChildNodes.OfType(Of MethodBlockSyntax).FirstOrDefault(Function(x) x.SubOrFunctionStatement.Identifier.ToString.ToLower = "initializecomponent")
-            If init Is Nothing Then Throw New Exception("Could not find initialize component method.")
-            For Each s As StatementSyntax In init.Statements
-                If TypeOf s Is AssignmentStatementSyntax Then
-                    Dim ss As AssignmentStatementSyntax = s
-                    If ss.OperatorToken.ToString <> "=" Then Throw New Exception("Invalid assignment operator.")
-                    Dim mem As MemberAccessExpressionSyntax = ss.Left
-                    Dim name As String = mem.Name.Identifier.ToString
-                    If TypeOf mem.Expression Is MeExpressionSyntax Then
-                        'process the component creation
-                        If components.ContainsKey(name) Then
-                            If TypeOf ss.Right Is ObjectCreationExpressionSyntax Then
-                                Dim oc As ObjectCreationExpressionSyntax = ss.Right
-                                If oc.Initializer IsNot Nothing Then Throw New Exception("Invalid assignment, object initializers not supported.")
-                                components(name) = host.CreateComponent(GetTypeFromString(oc.Type.ToString))
-                            Else
-                                Throw New Exception("Invalid assignment, expected object creation.")
-                            End If
-                        Else
-                            'process parent properties
-                            SetPropertyValueFromExpression(ss.Right, name, root)
-                        End If
-                    ElseIf TypeOf mem.Expression Is MemberAccessExpressionSyntax Then
-                        'process components properties
-                        Dim compName As String = DirectCast(mem.Expression, MemberAccessExpressionSyntax).Name.Identifier.ToString
-                        If Not components.ContainsKey(compName) Then Throw New Exception($"Invalid assignment, component '{compName}' not found")
-                        Dim obj As Object = components(compName)
-                        SetPropertyValueFromExpression(ss.Right, name, obj)
-                    End If
-                ElseIf TypeOf s Is ExpressionStatementSyntax Then
-                    Dim ss As ExpressionStatementSyntax = s
-                    If TypeOf ss.Expression Is InvocationExpressionSyntax Then
-                        Dim invoke As InvocationExpressionSyntax = ss.Expression
-                        If TypeOf invoke.Expression Is MemberAccessExpressionSyntax Then
-                            Dim method As MemberAccessExpressionSyntax = invoke.Expression
-                            Dim name As String = method.Name.Identifier.ToString
-                            If TypeOf method.Expression Is MeExpressionSyntax Then
-                                InvokeMethod(name, root, If(invoke.ArgumentList Is Nothing, Array.Empty(Of Object), GetArrayFromArgsList(invoke.ArgumentList)))
-                            ElseIf TypeOf method.Expression Is MemberAccessExpressionSyntax Then
-                                Dim memAccess As MemberAccessExpressionSyntax = DirectCast(method.Expression, MemberAccessExpressionSyntax)
-                                Dim ctrlName As String = memAccess.Name.Identifier.ToString
-                                Dim memExp As MemberAccessExpressionSyntax = TryCast(memAccess.Expression, MemberAccessExpressionSyntax)
-                                Dim otherName As String = memExp?.Name.Identifier.ToString
-                                otherName = If(otherName, "")
-                                Dim methodName As String
-                                Dim methodParent As Object
-                                If components.ContainsKey(ctrlName) Then
-                                    methodName = name
-                                    methodParent = components(ctrlName)
-                                ElseIf components.ContainsKey(otherName) Then
-                                    methodName = $"{ctrlName}.{name}"
-                                    methodParent = components(otherName)
-                                Else
-                                    methodName = $"{ctrlName}.{name}"
-                                    methodParent = root
-                                End If
-                                InvokeMethod(methodName, methodParent, If(invoke.ArgumentList Is Nothing, Array.Empty(Of Object), GetArrayFromArgsList(invoke.ArgumentList, components)))
-                            End If
-                        End If
-                    End If
-                End If
-            Next
-        End Sub
+        '            Next
+        '            Dim cls As ClassBlockSyntax = tree.GetRoot.ChildNodes.OfType(Of ClassBlockSyntax).FirstOrDefault
+        '            If cls Is Nothing Then Throw New Exception("No class to design.")
+        '            If cls.Inherits.Count <> 1 Then Throw New Exception("Cannot design more than one base type.")
+        '            Dim baseType As Type = GetTypeFromString(cls.Inherits.First().Types.First().ToString)
+        '            If Not GetType(Component).IsAssignableFrom(baseType) Then Throw New Exception($"The type {baseType.Name} is not supported.")
+        '            Dim components As New Dictionary(Of String, Component)
+        '            For Each f As FieldDeclarationSyntax In cls.ChildNodes.OfType(Of FieldDeclarationSyntax)
+        '                If f.Declarators.Count <> 1 Then Throw New Exception("Invalid declaration.")
+        '                Dim name As String = f.Declarators.First.Names.First.ToString
+        '                If f.Declarators.First.AsClause Is Nothing Then Throw New Exception("Invalid declaration. Please specify an as clause.")
+        '                If TypeOf f.Declarators.First.AsClause IsNot SimpleAsClauseSyntax Then Throw New Exception("Invalid declaration. Invalid as clause.")
+        '                Dim clause As SimpleAsClauseSyntax = f.Declarators.First.AsClause
+        '                Dim ctrlType As Type = GetTypeFromString(clause.Type.ToString)
+        '                If GetType(Component).IsAssignableFrom(ctrlType) Then
+        '                    components.Add(name, Nothing)
+        '                Else
+        '                    Throw New Exception($"The type {ctrlType.Name} is not supported.")
+        '                End If
+        '            Next
+        '            Dim init As MethodBlockSyntax = cls.ChildNodes.OfType(Of MethodBlockSyntax).FirstOrDefault(Function(x) x.SubOrFunctionStatement.Identifier.ToString.ToLower = "initializecomponent")
+        '            If init Is Nothing Then Throw New Exception("Could not find initialize component method.")
+        '            For Each s As StatementSyntax In init.Statements
+        '                If TypeOf s Is AssignmentStatementSyntax Then
+        '                    Dim ss As AssignmentStatementSyntax = s
+        '                    If ss.OperatorToken.ToString <> "=" Then Throw New Exception("Invalid assignment operator.")
+        '                    Dim mem As MemberAccessExpressionSyntax = ss.Left
+        '                    Dim name As String = mem.Name.Identifier.ToString
+        '                    If TypeOf mem.Expression Is MeExpressionSyntax Then
+        '                        'process the component creation
+        '                        If components.ContainsKey(name) Then
+        '                            If TypeOf ss.Right Is ObjectCreationExpressionSyntax Then
+        '                                Dim oc As ObjectCreationExpressionSyntax = ss.Right
+        '                                If oc.Initializer IsNot Nothing Then Throw New Exception("Invalid assignment, object initializers not supported.")
+        '                                components(name) = host.CreateComponent(GetTypeFromString(oc.Type.ToString))
+        '                            Else
+        '                                Throw New Exception("Invalid assignment, expected object creation.")
+        '                            End If
+        '                        Else
+        '                            'process parent properties
+        '                            SetPropertyValueFromExpression(ss.Right, name, root)
+        '                        End If
+        '                    ElseIf TypeOf mem.Expression Is MemberAccessExpressionSyntax Then
+        '                        'process components properties
+        '                        Dim compName As String = DirectCast(mem.Expression, MemberAccessExpressionSyntax).Name.Identifier.ToString
+        '                        If Not components.ContainsKey(compName) Then Throw New Exception($"Invalid assignment, component '{compName}' not found")
+        '                        Dim obj As Object = components(compName)
+        '                        SetPropertyValueFromExpression(ss.Right, name, obj)
+        '                    End If
+        '                ElseIf TypeOf s Is ExpressionStatementSyntax Then
+        '                    Dim ss As ExpressionStatementSyntax = s
+        '                    If TypeOf ss.Expression Is InvocationExpressionSyntax Then
+        '                        Dim invoke As InvocationExpressionSyntax = ss.Expression
+        '                        If TypeOf invoke.Expression Is MemberAccessExpressionSyntax Then
+        '                            Dim method As MemberAccessExpressionSyntax = invoke.Expression
+        '                            Dim name As String = method.Name.Identifier.ToString
+        '                            If TypeOf method.Expression Is MeExpressionSyntax Then
+        '                                InvokeMethod(name, root, If(invoke.ArgumentList Is Nothing, Array.Empty(Of Object), GetArrayFromArgsList(invoke.ArgumentList)))
+        '                            ElseIf TypeOf method.Expression Is MemberAccessExpressionSyntax Then
+        '                                Dim memAccess As MemberAccessExpressionSyntax = DirectCast(method.Expression, MemberAccessExpressionSyntax)
+        '                                Dim ctrlName As String = memAccess.Name.Identifier.ToString
+        '                                Dim memExp As MemberAccessExpressionSyntax = TryCast(memAccess.Expression, MemberAccessExpressionSyntax)
+        '                                Dim otherName As String = memExp?.Name.Identifier.ToString
+        '                                otherName = If(otherName, "")
+        '                                Dim methodName As String
+        '                                Dim methodParent As Object
+        '                                If components.ContainsKey(ctrlName) Then
+        '                                    methodName = name
+        '                                    methodParent = components(ctrlName)
+        '                                ElseIf components.ContainsKey(otherName) Then
+        '                                    methodName = $"{ctrlName}.{name}"
+        '                                    methodParent = components(otherName)
+        '                                Else
+        '                                    methodName = $"{ctrlName}.{name}"
+        '                                    methodParent = root
+        '                                End If
+        '                                InvokeMethod(methodName, methodParent, If(invoke.ArgumentList Is Nothing, Array.Empty(Of Object), GetArrayFromArgsList(invoke.ArgumentList, components)))
+        '                            End If
+        '                        End If
+        '                    End If
+        '                End If
+        '            Next
+        '        End Sub
 
-        Private Sub InvokeMethod(methodName As String, root As Object, ParamArray args As Object())
-            Dim lProperties As String() = methodName.Split(".")
-            Dim lastValue As Object = root
-            Dim lastType As Type = root.GetType
-            For i As Integer = 0 To lProperties.Length - 2
-                Dim prop As PropertyInfo = lastType.GetProperty(lProperties(i))
-                lastValue = prop.GetValue(lastValue)
-                lastType = prop.PropertyType
-            Next
-            Dim method As MethodInfo = lastType.GetMethod(lProperties.Last, args.Select(Function(x) x.GetType).ToArray)
-            method.Invoke(lastValue, args)
-        End Sub
+        '        Private Sub InvokeMethod(methodName As String, root As Object, ParamArray args As Object())
+        '            Dim lProperties As String() = methodName.Split(".")
+        '            Dim lastValue As Object = root
+        '            Dim lastType As Type = root.GetType
+        '            For i As Integer = 0 To lProperties.Length - 2
+        '                Dim prop As PropertyInfo = lastType.GetProperty(lProperties(i))
+        '                lastValue = prop.GetValue(lastValue)
+        '                lastType = prop.PropertyType
+        '            Next
+        '            Dim method As MethodInfo = lastType.GetMethod(lProperties.Last, args.Select(Function(x) x.GetType).ToArray)
+        '            method.Invoke(lastValue, args)
+        '        End Sub
 
-        Private Sub SetPropertyValueFromExpression(exp As ExpressionSyntax, name As String, root As Object)
-            If TypeOf exp Is ObjectCreationExpressionSyntax Then
-                Dim oc As ObjectCreationExpressionSyntax = exp
-                If oc.Initializer IsNot Nothing Then Throw New Exception("Invalid assignment, object initializers not supported.")
-                SetPropertyValue(GetValueFromObjectCreation(oc), name, root)
-            ElseIf TypeOf exp Is LiteralExpressionSyntax Then
-                SetPropertyValue(DirectCast(exp, LiteralExpressionSyntax).Token.Value, name, root)
-            Else
-                Throw New Exception("Invalid assignment, expected object creation.")
-            End If
-        End Sub
+        '        Private Sub SetPropertyValueFromExpression(exp As ExpressionSyntax, name As String, root As Object)
+        '            If TypeOf exp Is ObjectCreationExpressionSyntax Then
+        '                Dim oc As ObjectCreationExpressionSyntax = exp
+        '                If oc.Initializer IsNot Nothing Then Throw New Exception("Invalid assignment, object initializers not supported.")
+        '                SetPropertyValue(GetValueFromObjectCreation(oc), name, root)
+        '            ElseIf TypeOf exp Is LiteralExpressionSyntax Then
+        '                SetPropertyValue(DirectCast(exp, LiteralExpressionSyntax).Token.Value, name, root)
+        '            Else
+        '                Throw New Exception("Invalid assignment, expected object creation.")
+        '            End If
+        '        End Sub
 
-        Private Sub SetPropertyValue(value As Object, propName As String, root As Object)
-            Dim lProperties As String() = propName.Split(".")
-            Dim lastValue As Object = root
-            Dim lastType As Type = root.GetType
-            For i As Integer = 0 To lProperties.Length - 1
-                Dim prop As PropertyInfo = lastType.GetProperty(lProperties(i))
-                If lProperties.Length = i + 1 Then
-                    prop.SetValue(lastValue, value)
-                Else
-                    lastValue = prop.GetValue(lastValue)
-                    lastType = prop.PropertyType
-                End If
-            Next
-        End Sub
+        '        Private Sub SetPropertyValue(value As Object, propName As String, root As Object)
+        '            Dim lProperties As String() = propName.Split(".")
+        '            Dim lastValue As Object = root
+        '            Dim lastType As Type = root.GetType
+        '            For i As Integer = 0 To lProperties.Length - 1
+        '                Dim prop As PropertyInfo = lastType.GetProperty(lProperties(i))
+        '                If lProperties.Length = i + 1 Then
+        '                    prop.SetValue(lastValue, value)
+        '                Else
+        '                    lastValue = prop.GetValue(lastValue)
+        '                    lastType = prop.PropertyType
+        '                End If
+        '            Next
+        '        End Sub
 
-        Private Function GetValueFromObjectCreation(init As ObjectCreationExpressionSyntax, Optional components As Dictionary(Of String, Component) = Nothing) As Object
-            Dim vType As Type = GetTypeFromString(init.Type.ToString)
-            Dim args As ArgumentListSyntax = init.ArgumentList
-            Return If(args Is Nothing, Activator.CreateInstance(vType), Activator.CreateInstance(vType, GetArrayFromArgsList(args, components)))
-        End Function
+        '        Private Function GetValueFromObjectCreation(init As ObjectCreationExpressionSyntax, Optional components As Dictionary(Of String, Component) = Nothing) As Object
+        '            Dim vType As Type = GetTypeFromString(init.Type.ToString)
+        '            Dim args As ArgumentListSyntax = init.ArgumentList
+        '            Return If(args Is Nothing, Activator.CreateInstance(vType), Activator.CreateInstance(vType, GetArrayFromArgsList(args, components)))
+        '        End Function
 
-        Private Function GetArrayFromArgsList(args As ArgumentListSyntax, Optional components As Dictionary(Of String, Component) = Nothing) As Object()
-            Dim vArgs As New List(Of Object)
-            For Each arg As SimpleArgumentSyntax In args.ChildNodes
-                Dim exp As ExpressionSyntax = arg.Expression
-                If TypeOf exp Is LiteralExpressionSyntax Then
-                    vArgs.Add(DirectCast(exp, LiteralExpressionSyntax).Token.Value)
-                ElseIf TypeOf exp Is ObjectCreationExpressionSyntax Then
-                    vArgs.Add(GetValueFromObjectCreation(exp, components))
-                ElseIf TypeOf exp Is MemberAccessExpressionSyntax Then
-                    Dim name As String = DirectCast(exp, MemberAccessExpressionSyntax).Name.Identifier.ToString
-                    If components?.ContainsKey(name) Then
-                        vArgs.Add(components(name))
-                    Else
-                        Throw New Exception($"Invalid reference, could find variable '{name}'.")
-                    End If
-                End If
-            Next
-            Return vArgs.ToArray
-        End Function
+        '        Private Function GetArrayFromArgsList(args As ArgumentListSyntax, Optional components As Dictionary(Of String, Component) = Nothing) As Object()
+        '            Dim vArgs As New List(Of Object)
+        '            For Each arg As SimpleArgumentSyntax In args.ChildNodes
+        '                Dim exp As ExpressionSyntax = arg.Expression
+        '                If TypeOf exp Is LiteralExpressionSyntax Then
+        '                    vArgs.Add(DirectCast(exp, LiteralExpressionSyntax).Token.Value)
+        '                ElseIf TypeOf exp Is ObjectCreationExpressionSyntax Then
+        '                    vArgs.Add(GetValueFromObjectCreation(exp, components))
+        '                ElseIf TypeOf exp Is MemberAccessExpressionSyntax Then
+        '                    Dim name As String = DirectCast(exp, MemberAccessExpressionSyntax).Name.Identifier.ToString
+        '                    If components?.ContainsKey(name) Then
+        '                        vArgs.Add(components(name))
+        '                    Else
+        '                        Throw New Exception($"Invalid reference, could find variable '{name}'.")
+        '                    End If
+        '                End If
+        '            Next
+        '            Return vArgs.ToArray
+        '        End Function
 
-        Public Function GetTypeFromString(name As String) As Type
-            For Each assembly In AppDomain.CurrentDomain.GetAssemblies().Reverse()
-                Dim tt As Type = assembly.[GetType](name)
-                If tt IsNot Nothing Then
-                    Return tt
-                End If
-            Next
-            Return Nothing
-        End Function
+        '        Public Function GetTypeFromString(name As String) As Type
+        '            For Each assembly In AppDomain.CurrentDomain.GetAssemblies().Reverse()
+        '                Dim tt As Type = assembly.[GetType](name)
+        '                If tt IsNot Nothing Then
+        '                    Return tt
+        '                End If
+        '            Next
+        '            Return Nothing
+        '        End Function
 
-#End Region
+        '#End Region
 
     End Class
 End Namespace

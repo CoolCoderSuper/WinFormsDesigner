@@ -158,13 +158,11 @@ Public Class frmBase
         Dim designer As IDesignSurfaceExt = GetCurrentDesigner()
         Dim loader As XmlDesignerLoader = designer.GetLoader()
         loader.Save(True)
-        'IO.File.WriteAllText("C:\CodingCool\Code\Projects\test.vb", designer.GetCodeBehind(DesignLanguage.VB))
     End Sub
 
     Private Sub LoadToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles LoadToolStripMenuItem.Click
         Dim designer As IDesignSurfaceExt = GetCurrentDesigner()
-        
-        'designer.LoadCodeBehind(IO.File.ReadAllText("C:\CodingCool\Code\Projects\test.vb"), DesignLanguage.VB)
+        Dim loader As XmlDesignerLoader = designer.GetLoader()
     End Sub
 
 End Class

@@ -38,9 +38,9 @@ Namespace Base
 
         Sub EnableDragAndDrop()
 
-        Function GetCodeBehind(lang As DesignLanguage) As String
+        'Function GetCodeBehind(lang As DesignLanguage) As String
 
-        Sub LoadCodeBehind(code As String, lang As DesignLanguage)
+        'Sub LoadCodeBehind(code As String, lang As DesignLanguage)
 
     End Interface
 End NameSpace
