@@ -41,7 +41,6 @@ Partial Class frmBase
         Me.newFormUseSnapLinesMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.newToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.menuStrip1 = New System.Windows.Forms.MenuStrip()
-        Me.LoadToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SaveToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.propertyGrid = New System.Windows.Forms.PropertyGrid()
         Me.tabControl1 = New System.Windows.Forms.TabControl()
@@ -175,18 +174,12 @@ Partial Class frmBase
         '
         'menuStrip1
         '
-        Me.menuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.newToolStripMenuItem, Me.editToolStripMenuItem, Me.toolStripMenuItemTools, Me.LoadToolStripMenuItem, Me.SaveToolStripMenuItem})
+        Me.menuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.newToolStripMenuItem, Me.editToolStripMenuItem, Me.toolStripMenuItemTools, Me.SaveToolStripMenuItem})
         Me.menuStrip1.Location = New System.Drawing.Point(123, 0)
         Me.menuStrip1.Name = "menuStrip1"
         Me.menuStrip1.Size = New System.Drawing.Size(669, 24)
         Me.menuStrip1.TabIndex = 4
         Me.menuStrip1.Text = "menuStrip1"
-        '
-        'LoadToolStripMenuItem
-        '
-        Me.LoadToolStripMenuItem.Name = "LoadToolStripMenuItem"
-        Me.LoadToolStripMenuItem.Size = New System.Drawing.Size(45, 20)
-        Me.LoadToolStripMenuItem.Text = "Load"
         '
         'SaveToolStripMenuItem
         '
@@ -289,5 +282,4 @@ End Sub
     Private WithEvents pnl4Toolbox As Panel
     Private WithEvents splitContainer As SplitContainer
     Friend WithEvents SaveToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents LoadToolStripMenuItem As ToolStripMenuItem
 End Class

@@ -84,7 +84,7 @@ Public Class frmBase
         designer.UseSnapLines()
         Try
             Dim rootComponent As UserControl
-            rootComponent = CType(designer.CreateRootComponent(New XmlDesignerLoader("C:\CodingCool\Code\Projects\test.xml"), New Size(400, 400)), UserControl)
+            rootComponent = CType(designer.CreateRootComponent(GetLoader(), New Size(400, 400)), UserControl)
             rootComponent.Text = $"Root Component hosted by the DesignSurface N.{tabPageSelectedIndex}"
             rootComponent.BackColor = Color.Yellow
             Dim view As Control = designer.GetView()
@@ -107,7 +107,7 @@ Public Class frmBase
         designer.UseGrid(New Size(32, 32))
         Try
             Dim rootComponent As UserControl
-            rootComponent = CType(designer.CreateRootComponent(GetType(UserControl), New Size(400, 400)), UserControl)
+            rootComponent = CType(designer.CreateRootComponent(GetLoader(), New Size(400, 400)), UserControl)
             rootComponent.Text = $"Root Component hosted by the DesignSurface N.{tabPageSelectedIndex}"
             rootComponent.BackColor = Color.YellowGreen
             Dim view As Control = designer.GetView()
@@ -129,7 +129,7 @@ Public Class frmBase
         designer.UseNoGuides()
         Try
             Dim rootComponent As UserControl
-            rootComponent = CType(designer.CreateRootComponent(GetType(UserControl), New Size(400, 400)), UserControl)
+            rootComponent = CType(designer.CreateRootComponent(GetLoader, New Size(400, 400)), UserControl)
             rootComponent.Text = $"Root Component hosted by the DesignSurface N.{tabPageSelectedIndex}"
             rootComponent.BackColor = Color.LightGray
             Dim view As Control = designer.GetView()
@@ -159,10 +159,14 @@ Public Class frmBase
         Dim loader As XmlDesignerLoader = designer.GetLoader()
         loader.Save(True)
     End Sub
-
-    Private Sub LoadToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles LoadToolStripMenuItem.Click
-        Dim designer As IDesignSurfaceExt = GetCurrentDesigner()
-        Dim loader As XmlDesignerLoader = designer.GetLoader()
-    End Sub
-
+    
+    Private Shared Function GetLoader() As BasicDesignerLoader
+        Dim ofd As New OpenFileDialog
+        ofd.Filter = "XML Files|*.xml"
+        If ofd.ShowDialog() = DialogResult.OK Then
+            Return New XmlDesignerLoader(ofd.FileName)
+        Else
+            Return New XmlDesignerLoader(GetType(UserControl))
+        End If
+    End Function
 End Class
