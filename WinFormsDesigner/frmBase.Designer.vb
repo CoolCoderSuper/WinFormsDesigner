@@ -22,7 +22,7 @@ Partial Class frmBase
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Me.lstToolbox = New System.Windows.Forms.ListBox()
+        Me.lstToolbox = New DesignerToolBox()
         Me.toolStripMenuItemTabOrder = New System.Windows.Forms.ToolStripMenuItem()
         Me.toolStripMenuItemTools = New System.Windows.Forms.ToolStripMenuItem()
         Me.toolStripSeparator4 = New System.Windows.Forms.ToolStripSeparator()
@@ -263,7 +263,7 @@ Partial Class frmBase
 
 End Sub
 
-    Private WithEvents lstToolbox As ListBox
+    Private WithEvents lstToolbox As DesignerToolBox
     Private WithEvents toolStripMenuItemTabOrder As ToolStripMenuItem
     Private WithEvents toolStripMenuItemTools As ToolStripMenuItem
     Private WithEvents toolStripSeparator4 As ToolStripSeparator

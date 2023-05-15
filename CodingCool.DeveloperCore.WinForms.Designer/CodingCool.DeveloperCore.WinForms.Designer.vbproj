@@ -4,6 +4,11 @@
     <RootNamespace>CodingCool.DeveloperCore.WinForms.Designer</RootNamespace>
     <AssemblyName>CodingCool.DeveloperCore.WinForms.Designer</AssemblyName>
 	<UseWindowsForms>true</UseWindowsForms>
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<Title>CodingCool.DeveloperCore.WinForms.Designer</Title>
+	<Authors>CoolCoderSuper</Authors>
+	<PackageProjectUrl>https://github.com/CoolCoderSuper/WinFormsDesigner</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/CoolCoderSuper/WinFormsDesigner</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="7.0.2" />

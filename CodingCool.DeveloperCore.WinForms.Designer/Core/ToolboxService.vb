@@ -9,7 +9,7 @@ Namespace Core
 
         Public Property DesignerHost As IDesignerHost
 
-        Public Property Toolbox As ListBox
+        Public Property Toolbox As IToolbox
         
         Public Sub New(host As IDesignerHost)
             DesignerHost = host
@@ -39,7 +39,7 @@ Namespace Core
         End Sub
         
         Private Sub AddToolboxItem(toolboxItem As ToolboxItem) Implements IToolboxService.AddToolboxItem
-            Toolbox.Items.Add(toolboxItem)
+            Toolbox.AddItem(toolboxItem)
         End Sub
         
         Private ReadOnly Property CategoryNames As CategoryNameCollection Implements IToolboxService.CategoryNames
@@ -62,7 +62,7 @@ Namespace Core
         
         Private Function GetSelectedToolboxItem() As ToolboxItem Implements IToolboxService.GetSelectedToolboxItem
             If Toolbox Is Nothing OrElse Toolbox.SelectedItem Is Nothing Then Return Nothing
-            Dim tbItem As ToolboxItem = CType(Toolbox.SelectedItem, ToolboxItem)
+            Dim tbItem As ToolboxItem = Toolbox.SelectedItem
             If tbItem.DisplayName.ToUpper().Contains("POINTER") Then Return Nothing
             Return tbItem
         End Function
@@ -81,9 +81,7 @@ Namespace Core
         
         Private Function GetToolboxItems() As ToolboxItemCollection Implements IToolboxService.GetToolboxItems
             If Toolbox Is Nothing Then Return Nothing
-            Dim arr = New ToolboxItem(Toolbox.Items.Count - 1) {}
-            Toolbox.Items.CopyTo(arr, 0)
-            Return New ToolboxItemCollection(arr)
+            Return New ToolboxItemCollection(Toolbox.GetItems())
         End Function
         
         Private Function IsSupported(serializedObject As Object, filterAttributes As ICollection) As Boolean Implements IToolboxService.IsSupported
@@ -122,7 +120,7 @@ Namespace Core
         Private Sub RemoveToolboxItem(toolboxItem As ToolboxItem) Implements IToolboxService.RemoveToolboxItem
             If Toolbox Is Nothing Then Return
             Toolbox.SelectedItem = Nothing
-            Toolbox.Items.Remove(toolboxItem)
+            Toolbox.RemoveItem(toolboxItem)
         End Sub
         
         Private Property SelectedCategory As String Implements IToolboxService.SelectedCategory
@@ -147,7 +145,7 @@ Namespace Core
         
         Private Function SetCursor() As Boolean Implements IToolboxService.SetCursor
             If Toolbox Is Nothing OrElse Toolbox.SelectedItem Is Nothing Then Return False
-            Dim tbItem As ToolboxItem = CType(Toolbox.SelectedItem, ToolboxItem)
+            Dim tbItem As ToolboxItem = Toolbox.SelectedItem
             If tbItem.DisplayName.ToUpper().Contains("POINTER") Then Return False
             If Toolbox.SelectedItem IsNot Nothing Then
                 Cursor.Current = Cursors.Cross
@@ -161,5 +159,4 @@ Namespace Core
             Toolbox.SelectedItem = toolboxItem
         End Sub
     End Class
-
 End Namespace
