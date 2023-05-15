@@ -9,6 +9,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
 Imports System.Threading
 Imports System.Windows.Forms
 Imports System.Xml
+Imports KGySoft.Serialization.Binary
 'stolen with glee from a random msdn article that i cant find
 Namespace Load
     Public Class XmlDesignerLoader
@@ -254,10 +255,10 @@ Namespace Load
             ElseIf TypeOf value Is IComponent AndAlso (CType(value, IComponent)).Site IsNot Nothing AndAlso CType(value, IComponent).Site.Container Is idh.Container Then
                 parent.AppendChild(WriteReference(document, CType(value, IComponent)))
             ElseIf value.[GetType]().IsSerializable Then
-                Dim formatter As BinaryFormatter = New BinaryFormatter()
-                Dim stream As MemoryStream = New MemoryStream()
-                formatter.Serialize(stream, value)
-                Dim binaryNode As XmlNode = WriteBinary(document, stream.ToArray())
+                'Dim formatter As BinaryFormatter = New BinaryFormatter()
+                'Dim stream As MemoryStream = New MemoryStream()
+                'formatter.Serialize(stream, value)
+                Dim binaryNode As XmlNode = WriteBinary(document, BinarySerializer.Serialize(value))'WriteBinary(document, stream.ToArray())
                 parent.AppendChild(binaryNode)
             Else
                 Return False
@@ -285,11 +286,11 @@ Namespace Load
 
         Private Function WriteInstanceDescriptor(document As XmlDocument, desc As InstanceDescriptor, value As Object) As XmlNode
             Dim node As XmlNode = document.CreateElement("InstanceDescriptor")
-            Dim formatter As BinaryFormatter = New BinaryFormatter()
-            Dim stream As MemoryStream = New MemoryStream()
-            formatter.Serialize(stream, desc.MemberInfo)
+            'Dim formatter As BinaryFormatter = New BinaryFormatter()
+            'Dim stream As MemoryStream = New MemoryStream()
+            'formatter.Serialize(stream, desc.MemberInfo)
             Dim memberAttr As XmlAttribute = document.CreateAttribute("member")
-            memberAttr.Value = Convert.ToBase64String(stream.ToArray())
+            memberAttr.Value = Convert.ToBase64String(BinarySerializer.Serialize(desc.MemberInfo))'Convert.ToBase64String(stream.ToArray())
             node.Attributes.Append(memberAttr)
 
             For Each arg As Object In desc.Arguments
@@ -388,9 +389,9 @@ Namespace Load
             End If
 
             Dim data As Byte() = Convert.FromBase64String(memberAttr.Value)
-            Dim formatter As BinaryFormatter = New BinaryFormatter()
-            Dim stream As MemoryStream = New MemoryStream(data)
-            Dim mi As MemberInfo = CType(formatter.Deserialize(stream), MemberInfo)
+            'Dim formatter As BinaryFormatter = New BinaryFormatter()
+            'Dim stream As MemoryStream = New MemoryStream(data)
+            Dim mi As MemberInfo = BinarySerializer.Deserialize(data) 'CType(formatter.Deserialize(stream), MemberInfo)
             Dim args As Object() = Nothing
             Dim memberInfo As MethodBase = TryCast(mi, MethodBase)
             If memberInfo IsNot Nothing
@@ -591,9 +592,9 @@ Namespace Load
                             value = converter.ConvertFrom(Nothing, CultureInfo.InvariantCulture, data)
                             Return True
                         Else
-                            Dim formatter As BinaryFormatter = New BinaryFormatter()
-                            Dim stream As MemoryStream = New MemoryStream(data)
-                            value = formatter.Deserialize(stream)
+                            'Dim formatter As BinaryFormatter = New BinaryFormatter()
+                            'Dim stream As MemoryStream = New MemoryStream(data)
+                            value = BinarySerializer.Deserialize(data)'formatter.Deserialize(stream)
                             Return True
                         End If
                     ElseIf child.Name.Equals("InstanceDescriptor") Then

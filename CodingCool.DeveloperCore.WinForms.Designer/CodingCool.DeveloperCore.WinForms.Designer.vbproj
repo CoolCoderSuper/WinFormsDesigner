@@ -9,10 +9,9 @@
 	<Authors>CoolCoderSuper</Authors>
 	<PackageProjectUrl>https://github.com/CoolCoderSuper/WinFormsDesigner</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/CoolCoderSuper/WinFormsDesigner</RepositoryUrl>
-	<AssemblyVersion>1.0.1.0</AssemblyVersion>
-	<FileVersion>1.0.1.0</FileVersion>
-	<Version>1.0.1</Version>
-      <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+	<AssemblyVersion>1.0.3.0</AssemblyVersion>
+	<FileVersion>1.0.3.0</FileVersion>
+	<Version>1.0.3</Version>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Design" />
@@ -21,6 +20,6 @@
     <Folder Include="My Project\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
+    <PackageReference Include="KGySoft.CoreLibraries" Version="7.1.0" />
   </ItemGroup>
 </Project>
