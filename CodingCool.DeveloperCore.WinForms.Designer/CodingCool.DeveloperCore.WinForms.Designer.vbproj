@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net48;net7.0-windows</TargetFrameworks>
+    <TargetFrameworks>net472;net7.0-windows</TargetFrameworks>
     <RootNamespace>CodingCool.DeveloperCore.WinForms.Designer</RootNamespace>
     <AssemblyName>CodingCool.DeveloperCore.WinForms.Designer</AssemblyName>
 	<UseWindowsForms>true</UseWindowsForms>
@@ -9,9 +9,15 @@
 	<Authors>CoolCoderSuper</Authors>
 	<PackageProjectUrl>https://github.com/CoolCoderSuper/WinFormsDesigner</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/CoolCoderSuper/WinFormsDesigner</RepositoryUrl>
+	<AssemblyVersion>1.0.1.0</AssemblyVersion>
+	<FileVersion>1.0.1.0</FileVersion>
+	<Version>1.0.1</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="7.0.2" />
     <Reference Include="System.Design" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="My Project\" />
   </ItemGroup>
 </Project>
