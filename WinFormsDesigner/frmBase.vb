@@ -7,30 +7,31 @@ Imports CodingCool.DeveloperCore.WinForms.Designer.Base
 Imports CodingCool.DeveloperCore.WinForms.Designer.Core
 Imports CodingCool.DeveloperCore.WinForms.Designer.Load
 Imports Microsoft.VisualBasic.ApplicationServices
-
+'TODO: Toolbox
 Public Class frmBase
     Private ReadOnly _designers As New List(Of IDesignSurfaceExt)
     Private Sub MainForm_Load(sender As Object, e As EventArgs) Handles Me.Load
-        Dim toolPointer As ToolboxItem = New ToolboxItem()
-        toolPointer.DisplayName = "<Pointer>"
-        toolPointer.Bitmap = New Bitmap(16, 16)
-        listBox1.Items.Add(toolPointer)
-        listBox1.Items.Add(New ToolboxItem(GetType(Button)))
-        listBox1.Items.Add(New ToolboxItem(GetType(ListView)))
-        listBox1.Items.Add(New ToolboxItem(GetType(TreeView)))
-        listBox1.Items.Add(New ToolboxItem(GetType(TextBox)))
-        listBox1.Items.Add(New ToolboxItem(GetType(Label)))
-        listBox1.Items.Add(New ToolboxItem(GetType(TabControl)))
-        listBox1.Items.Add(New ToolboxItem(GetType(OpenFileDialog)))
-        listBox1.Items.Add(New ToolboxItem(GetType(CheckBox)))
-        listBox1.Items.Add(New ToolboxItem(GetType(ComboBox)))
-        listBox1.Items.Add(New ToolboxItem(GetType(GroupBox)))
-        listBox1.Items.Add(New ToolboxItem(GetType(ImageList)))
-        listBox1.Items.Add(New ToolboxItem(GetType(Panel)))
-        listBox1.Items.Add(New ToolboxItem(GetType(ProgressBar)))
-        listBox1.Items.Add(New ToolboxItem(GetType(ToolStrip)))
-        listBox1.Items.Add(New ToolboxItem(GetType(ToolTip)))
-        AddHandler tabControl1.Selected, AddressOf OnTabPageSelected
+        Dim toolPointer As ToolboxItem = New ToolboxItem With {
+            .DisplayName = "<Pointer>",
+            .Bitmap = New Bitmap(16, 16)
+        }
+        lstToolbox.Items.Add(toolPointer)
+        lstToolbox.Items.Add(New ToolboxItem(GetType(Button)))
+        lstToolbox.Items.Add(New ToolboxItem(GetType(ListView)))
+        lstToolbox.Items.Add(New ToolboxItem(GetType(TreeView)))
+        lstToolbox.Items.Add(New ToolboxItem(GetType(TextBox)))
+        lstToolbox.Items.Add(New ToolboxItem(GetType(Label)))
+        lstToolbox.Items.Add(New ToolboxItem(GetType(TabControl)))
+        lstToolbox.Items.Add(New ToolboxItem(GetType(OpenFileDialog)))
+        lstToolbox.Items.Add(New ToolboxItem(GetType(CheckBox)))
+        lstToolbox.Items.Add(New ToolboxItem(GetType(ComboBox)))
+        lstToolbox.Items.Add(New ToolboxItem(GetType(GroupBox)))
+        lstToolbox.Items.Add(New ToolboxItem(GetType(ImageList)))
+        lstToolbox.Items.Add(New ToolboxItem(GetType(Panel)))
+        lstToolbox.Items.Add(New ToolboxItem(GetType(ProgressBar)))
+        lstToolbox.Items.Add(New ToolboxItem(GetType(ToolStrip)))
+        lstToolbox.Items.Add(New ToolboxItem(GetType(ToolTip)))
+        AddHandler tcDesigners.Selected, AddressOf OnTabPageSelected
     End Sub
 
     Private Sub OnTabPageSelected(sender As Object, e As TabControlEventArgs)
@@ -40,20 +41,20 @@ Public Class frmBase
     Private Function GetCurrentDesigner() As IDesignSurfaceExt
         If _designers Is Nothing Then Return Nothing
         If _designers.Count = 0 Then Return Nothing
-        Return _designers(tabControl1.SelectedIndex)
+        Return _designers(tcDesigners.SelectedIndex)
     End Function
 
     Private Sub OnSelectionChanged(sender As Object, e As EventArgs)
         Dim designer As IDesignSurfaceExt = GetCurrentDesigner()
         If designer IsNot Nothing Then
             Dim selectionService As ISelectionService = designer.GetDesignerHost().GetService(GetType(ISelectionService))
-            propertyGrid.SelectedObject = selectionService.PrimarySelection
+            pgProperties.SelectedObject = selectionService.PrimarySelection
         End If
     End Sub
 
     Private Sub SelectRootComponent()
         Dim designer As IDesignSurfaceExt = GetCurrentDesigner()
-        If designer IsNot Nothing Then propertyGrid.SelectedObject = designer.GetDesignerHost().RootComponent
+        If designer IsNot Nothing Then pgProperties.SelectedObject = designer.GetDesignerHost().RootComponent
     End Sub
 
     Private Sub undoToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ToolStripMenuItemUnDo.Click
@@ -78,8 +79,8 @@ Public Class frmBase
 
     Private Sub newFormUseSnapLinesMenuItem_Click(sender As Object, e As EventArgs) Handles newFormUseSnapLinesMenuItem.Click
         Dim tp As New TabPage("Use SnapLines")
-        tabControl1.TabPages.Add(tp)
-        Dim tabPageSelectedIndex As Integer = tabControl1.SelectedIndex
+        tcDesigners.TabPages.Add(tp)
+        Dim tabPageSelectedIndex As Integer = tcDesigners.SelectedIndex
         Dim designer As DesignSurfaceExt = CreateDesignSurface()
         designer.UseSnapLines()
         Try
@@ -101,8 +102,8 @@ Public Class frmBase
 
     Private Sub newFormUseGridandSnapMenuItem_Click(sender As Object, e As EventArgs) Handles newFormUseGridandSnapMenuItem.Click
         Dim tp As New TabPage("Use Grid (Snap to the grid)")
-        tabControl1.TabPages.Add(tp)
-        Dim tabPageSelectedIndex As Integer = tabControl1.SelectedIndex
+        tcDesigners.TabPages.Add(tp)
+        Dim tabPageSelectedIndex As Integer = tcDesigners.SelectedIndex
         Dim designer As DesignSurfaceExt = CreateDesignSurface()
         designer.UseGrid(New Size(32, 32))
         Try
@@ -123,8 +124,8 @@ Public Class frmBase
 
     Private Sub newFormAlignControlByhandMenuItem_Click(sender As Object, e As EventArgs) Handles newFormAlignControlByhandMenuItem.Click
         Dim tp As New TabPage("Align control by hand")
-        tabControl1.TabPages.Add(tp)
-        Dim tabPageSelectedIndex As Integer = tabControl1.SelectedIndex
+        tcDesigners.TabPages.Add(tp)
+        Dim tabPageSelectedIndex As Integer = tcDesigners.SelectedIndex
         Dim designer As DesignSurfaceExt = CreateDesignSurface()
         designer.UseNoGuides()
         Try
@@ -150,7 +151,7 @@ Public Class frmBase
         Dim selectionService As ISelectionService = CType((designer.GetDesignerHost().GetService(GetType(ISelectionService))), ISelectionService)
         If selectionService IsNot Nothing Then AddHandler selectionService.SelectionChanged, AddressOf OnSelectionChanged
         Dim tbox As ToolboxService = designer.GetToolboxService()
-        If tbox IsNot Nothing Then tbox.Toolbox = listBox1
+        If tbox IsNot Nothing Then tbox.Toolbox = lstToolbox
         Return designer
     End Function
 
@@ -161,12 +162,16 @@ Public Class frmBase
     End Sub
     
     Private Shared Function GetLoader() As BasicDesignerLoader
-        Dim ofd As New OpenFileDialog
-        ofd.Filter = "XML Files|*.xml"
-        If ofd.ShowDialog() = DialogResult.OK Then
-            Return New XmlDesignerLoader(ofd.FileName)
-        Else
-            Return New XmlDesignerLoader(GetType(UserControl))
-        End If
+        Dim ofd As New OpenFileDialog With {
+            .Filter = "XML Files|*.xml"
+        }
+        Return If(ofd.ShowDialog() = DialogResult.OK, New XmlDesignerLoader(ofd.FileName), New XmlDesignerLoader(GetType(UserControl)))
     End Function
+
+    Private Sub CloseToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CloseToolStripMenuItem.Click
+        If tcDesigners.TabCount > 0 Then
+            _designers.RemoveAt(tcDesigners.SelectedIndex)
+            tcDesigners.TabPages.RemoveAt(tcDesigners.SelectedIndex)
+        End If
+    End Sub
 End Class
