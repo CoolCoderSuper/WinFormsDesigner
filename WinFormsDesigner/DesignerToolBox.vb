@@ -41,10 +41,16 @@ Public Class DesignerToolBox
     End Function
 
     Public Event MouseDown(sender As Object, e As MouseEventArgs) Implements IToolbox.MouseDown
+    Public Event MouseMove(sender As Object, e As MouseEventArgs) Implements IToolbox.MouseMove
     
     Protected Overrides Sub OnMouseDown(e As MouseEventArgs)
         RaiseEvent MouseDown(Me, e)
         MyBase.OnMouseDown(e)
+    End Sub
+    
+    Protected Overrides Sub OnMouseMove(e As MouseEventArgs)
+        RaiseEvent MouseMove(Me, e)
+        MyBase.OnMouseMove(e)
     End Sub
     
     Protected Overrides Sub OnDrawItem(e As DrawItemEventArgs)

@@ -207,14 +207,29 @@ Namespace Base
             Dim tbs As ToolboxService = GetToolboxService()
             If tbs Is Nothing Then Return
             AddHandler tbs.Toolbox.MouseDown, AddressOf OnListBoxMouseDown
+            AddHandler tbs.Toolbox.MouseMove, AddressOf OnListBoxMouseMove
         End Sub
 
+        Dim _dragPoint As Point = Point.Empty
+        
         Private Sub OnListBoxMouseDown(sender As Object, e As MouseEventArgs)
             Dim tbs As ToolboxService = GetToolboxService()
             If tbs Is Nothing Then Return
             If tbs.Toolbox Is Nothing Then Return
             If tbs.Toolbox.SelectedItem Is Nothing Then Return
-            tbs.Toolbox.DoDragDrop(tbs.Toolbox.SelectedItem, DragDropEffects.Copy Or DragDropEffects.Move)
+            _dragPoint = New Point(e.X, e.Y)
+        End Sub
+        
+        Private Sub OnListBoxMouseMove(sender As Object, e As MouseEventArgs)
+            Dim tbs As ToolboxService = GetToolboxService()
+            If tbs Is Nothing Then Return
+            If tbs.Toolbox Is Nothing Then Return
+            If tbs.Toolbox.SelectedItem Is Nothing Then Return
+            If e.Button = MouseButtons.Left Then
+                If _dragPoint <> Point.Empty AndAlso (Math.Abs(e.X - _dragPoint.X) > SystemInformation.DragSize.Width OrElse Math.Abs(e.Y - _dragPoint.Y) > SystemInformation.DragSize.Height) Then 
+                    tbs.Toolbox.DoDragDrop(tbs.Toolbox.SelectedItem, DragDropEffects.Copy Or DragDropEffects.Move)
+                End If
+            End If
         End Sub
 
         Public Sub OnDragDrop(sender As Object, e As DragEventArgs)

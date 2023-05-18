@@ -10,5 +10,6 @@ Namespace Core
         Sub DoDragDrop(toolboxItem As ToolboxItem, dragDropEffects As DragDropEffects)
         Function GetItems() As ToolboxItem()
         Event MouseDown(sender As Object, e As MouseEventArgs)
+        Event MouseMove(sender As Object, e As MouseEventArgs)
     End Interface
 End NameSpace
