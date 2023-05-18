@@ -6,7 +6,6 @@ Imports CodingCool.DeveloperCore.WinForms.Designer.Base
 Imports CodingCool.DeveloperCore.WinForms.Designer.Core
 Imports CodingCool.DeveloperCore.WinForms.Designer.Load
 
-'TODO: Add rename method
 Public Class frmBase
     Private ReadOnly _designers As New List(Of IDesignSurfaceExt)
     

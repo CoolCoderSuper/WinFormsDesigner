@@ -528,5 +528,11 @@ Namespace Base
 
         '#End Region
 
+        Public Sub Rename(component As IComponent, name As String) Implements IDesignSurfaceExt.Rename
+            Dim objDescriptor As PropertyDescriptorCollection = TypeDescriptor.GetProperties(component)
+            Dim objName As PropertyDescriptor = objDescriptor.Find("Name", False)
+            objName.SetValue(component, name)
+        End Sub
+        
     End Class
 End Namespace

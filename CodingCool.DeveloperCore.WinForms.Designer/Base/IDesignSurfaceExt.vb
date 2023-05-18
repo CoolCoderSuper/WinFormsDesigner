@@ -37,6 +37,8 @@ Namespace Base
         Function GetLoader() As BasicDesignerLoader
 
         Sub EnableDragAndDrop()
+        
+        Sub Rename(component As IComponent, name As String)
 
         'Function GetCodeBehind(lang As DesignLanguage) As String
 
