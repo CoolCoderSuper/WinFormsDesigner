@@ -320,48 +320,7 @@ Namespace Base
                 Throw
             End Try
         End Sub
-
-#Region "CodeBehind"
-        'TODO: Convert to DesignerLoader
-
-        Public Function GetCodeBehind(lang As DesignLanguage) As String Implements IDesignSurfaceExt.GetCodeBehind
-            Dim codeType As CodeTypeDeclaration
-            Dim host As IDesignerHost = GetDesignerHost()
-            Dim root As IComponent = host.RootComponent
-            Dim mngr As New DesignerSerializationManager(host)
-            Using mngr.CreateSession
-                Dim serializer As TypeCodeDomSerializer = mngr.GetSerializer(root.GetType, GetType(TypeCodeDomSerializer))
-                codeType = serializer.Serialize(mngr, root, host.Container.Components)
-                codeType.IsPartial = True
-                codeType.Members.OfType(Of CodeConstructor).FirstOrDefault.Attributes = MemberAttributes.Public
-            End Using
-            Dim builder As New StringBuilder
-            Dim options As New CodeGeneratorOptions With {
-                    .BracingStyle = "C",
-                    .BlankLinesBetweenMembers = False
-                    }
-            Using writer = New StringWriter(builder, CultureInfo.InvariantCulture)
-                Select Case lang
-                    Case DesignLanguage.CS
-                        Using csProv = New CSharpCodeProvider
-                            csProv.GenerateCodeFromType(codeType, writer, options)
-                        End Using
-                    Case DesignLanguage.VB
-                        Using vbProv = New VBCodeProvider
-                            vbProv.GenerateCodeFromType(codeType, writer, options)
-                        End Using
-                    Case Else
-                        Throw New Exception("Invalid language")
-                End Select
-            End Using
-            Return builder.ToString
-        End Function
         
-        Public Sub LoadCodeBehind(code As String, lang As DesignLanguage) Implements IDesignSurfaceExt.LoadCodeBehind
-            
-        End Sub
-#End Region
-
         Public Sub Rename(component As IComponent, name As String) Implements IDesignSurfaceExt.Rename
             Dim objDescriptor As PropertyDescriptorCollection = TypeDescriptor.GetProperties(component)
             Dim objName As PropertyDescriptor = objDescriptor.Find("Name", False)

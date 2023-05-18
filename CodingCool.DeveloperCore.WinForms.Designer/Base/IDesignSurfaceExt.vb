@@ -40,9 +40,5 @@ Namespace Base
         
         Sub Rename(component As IComponent, name As String)
 
-        Function GetCodeBehind(lang As DesignLanguage) As String
-
-        Sub LoadCodeBehind(code As String, lang As DesignLanguage)
-
     End Interface
 End NameSpace
