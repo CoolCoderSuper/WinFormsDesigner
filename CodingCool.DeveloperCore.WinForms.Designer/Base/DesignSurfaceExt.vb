@@ -78,13 +78,13 @@ Namespace Base
                     If LoadErrors.Count > 0 Then Throw New Exception($"Exception: the BeginLoad(Type) failed! Some error during {controlType} loading")
                 End If
                 Dim ctrl As Control
-                If TypeOf host.RootComponent Is Form Then
+                If host.RootComponent.GetType().IsSubclassOf(GetType(Form)) Then
                     ctrl = TryCast(View, Control)
                     ctrl.BackColor = Color.LightGray
                     Dim pdc As PropertyDescriptorCollection = TypeDescriptor.GetProperties(ctrl)
                     Dim pdS As PropertyDescriptor = pdc.Find("Size", False)
                     If pdS IsNot Nothing Then pdS.SetValue(host.RootComponent, controlSize)
-                ElseIf TypeOf host.RootComponent Is UserControl Then
+                ElseIf host.RootComponent.GetType().IsSubclassOf(GetType(UserControl)) Then
                     ctrl = TryCast(View, Control)
                     ctrl.BackColor = Color.Gray
                     Dim pdc As PropertyDescriptorCollection = TypeDescriptor.GetProperties(ctrl)

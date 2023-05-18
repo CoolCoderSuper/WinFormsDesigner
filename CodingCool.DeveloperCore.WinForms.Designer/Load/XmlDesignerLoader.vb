@@ -45,15 +45,9 @@ Namespace Load
             Dim successful As Boolean = True
             Dim baseClassName As String
             If _code Is Nothing Then
-                If _rootComponentType = GetType(Form) Then
-                    _host.CreateComponent(GetType(Form))
-                    baseClassName = "Form1"
-                ElseIf _rootComponentType = GetType(UserControl) Then
-                    _host.CreateComponent(GetType(UserControl))
-                    baseClassName = "UserControl1"
-                ElseIf _rootComponentType = GetType(Component) Then
-                    _host.CreateComponent(GetType(Component))
-                    baseClassName = "Component1"
+                If _rootComponentType.IsSubclassOf(GetType(Component)) Then
+                    _host.CreateComponent(_rootComponentType)
+                    baseClassName = $"{_rootComponentType.Name}1"
                 Else
                     Throw New Exception("Undefined Host Type: " & _rootComponentType.ToString())
                 End If
