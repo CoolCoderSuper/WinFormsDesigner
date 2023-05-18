@@ -6,10 +6,12 @@ Imports CodingCool.DeveloperCore.WinForms.Designer.Base
 Imports CodingCool.DeveloperCore.WinForms.Designer.Core
 Imports CodingCool.DeveloperCore.WinForms.Designer.Load
 
+'TODO: Add rename method
 Public Class frmBase
     Private ReadOnly _designers As New List(Of IDesignSurfaceExt)
+    
     Private Sub MainForm_Load(sender As Object, e As EventArgs) Handles Me.Load
-        Dim toolPointer As ToolboxItem = New ToolboxItem With {
+        Dim toolPointer As New ToolboxItem With {
             .DisplayName = "<Pointer>",
             .Bitmap = New Bitmap(16, 16)
         }

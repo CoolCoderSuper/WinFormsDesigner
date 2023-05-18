@@ -1,5 +1,6 @@
 ﻿Imports System.ComponentModel
 Imports System.ComponentModel.Design
+Imports System.Drawing
 Imports System.Drawing.Design
 Imports System.Reflection
 Imports System.Windows.Forms
@@ -164,7 +165,13 @@ Namespace Core
 
         Public Sub AddItems(ParamArray assemblies As Assembly())
             For Each t As Type In assemblies.Select(Function(x) x.GetTypes().Where(Function(y) y.IsSubclassOf(GetType(Component)))).SelectMany(Function(x) x).Where(Function(x) Not Toolbox.GetItems().Select(Function(y) y.TypeName).Contains(x.FullName)).Where(Function(x) x.GetConstructors().Any(Function(y) Not y.GetParameters().Any()) AndAlso Not x.IsAbstract AndAlso x.IsPublic)
-                AddToolboxItem(New ToolboxItem(t))
+                Dim item As New ToolboxItem(t)
+                Dim imageAttr As ToolboxBitmapAttribute = TypeDescriptor.GetAttributes(t)(GetType(ToolboxBitmapAttribute))
+                If imageAttr IsNot Nothing Then
+                    item.Bitmap = imageAttr.GetImage(t)
+                    item.OriginalBitmap = imageAttr.GetImage(t)
+                End If
+                AddToolboxItem(item)
             Next
         End Sub
     End Class

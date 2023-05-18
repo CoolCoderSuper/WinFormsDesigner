@@ -5,6 +5,10 @@ Public Class DesignerToolBox
     Inherits ListBox
     Implements IToolbox
 
+    Public Sub New()
+        DrawMode = DrawMode.OwnerDrawFixed
+    End Sub
+    
     Public Sub AddItem(toolboxItem As ToolboxItem) Implements IToolbox.AddItem
         Items.Add(toolboxItem)
     End Sub
@@ -42,4 +46,21 @@ Public Class DesignerToolBox
         RaiseEvent MouseDown(Me, e)
         MyBase.OnMouseDown(e)
     End Sub
+    
+    Protected Overrides Sub OnDrawItem(e As DrawItemEventArgs)
+        e.DrawBackground()
+        Dim objItem As ToolboxItem = Items(e.Index)
+        If objItem.OriginalBitmap IsNot Nothing Then e.Graphics.DrawImage(DirectCast(objItem.OriginalBitmap, Image), GetImagePoints(e.Bounds))
+        e.Graphics.DrawString(objItem.DisplayName, e.Font, New SolidBrush(e.ForeColor), GetTextRect(e.Bounds))
+        e.DrawFocusRectangle()
+    End Sub
+    
+    Private Shared Function GetImagePoints(rectangle As Rectangle) As Point()
+        Return New Point(2) {New Point(rectangle.Left, rectangle.Top), New Point(16, rectangle.Top), New Point(rectangle.Left, rectangle.Bottom)}
+    End Function
+    
+    Private Shared Function GetTextRect(rectangle As Rectangle) As Rectangle
+        Return New Rectangle(16, rectangle.Top, 0 ,0)
+    End Function
+
 End Class
