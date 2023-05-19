@@ -456,6 +456,7 @@ Namespace Load
 
             Dim childAttr As XmlAttribute = node.Attributes("children")
             Dim childList As IList = Nothing
+            Dim tempList As New List(Of Object)
 
             If childAttr IsNot Nothing Then
                 Dim childProp As PropertyDescriptor = TypeDescriptor.GetProperties(instance)(childAttr.Value)
@@ -482,7 +483,7 @@ Namespace Load
 
                     If childList IsNot Nothing Then
                         Dim childInstance As Object = ReadObject(childNode, errors)
-                        childList.Add(childInstance)
+                        tempList.Add(childInstance)
                     End If
                 ElseIf childNode.Name.Equals("Property") Then
                     ReadProperty(childNode, instance, errors)
@@ -490,6 +491,11 @@ Namespace Load
                     ReadEvent(childNode, instance, errors)
                 End If
             Next
+            If childList IsNot Nothing Then
+                For Each obj As Object In tempList
+                    childList.Add(obj)
+                Next
+            End If
 
             Return instance
         End Function
