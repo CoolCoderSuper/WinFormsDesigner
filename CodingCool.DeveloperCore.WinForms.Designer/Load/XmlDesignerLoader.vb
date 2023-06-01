@@ -370,7 +370,7 @@ Namespace Load
             Try
                 prop.SetValue(instance, methodAttr.Value)
             Catch ex As Exception
-                errors.Add(ex.Message)
+                errors.Add(ex)
             End Try
         End Sub
 
@@ -545,7 +545,7 @@ Namespace Load
                                 Try
                                     CType(value, IList).Add(item)
                                 Catch ex As Exception
-                                    errors.Add(ex.Message)
+                                    errors.Add(ex)
                                 End Try
                             End If
                         Else
@@ -571,7 +571,7 @@ Namespace Load
                     Try
                         prop.SetValue(instance, value)
                     Catch ex As Exception
-                        errors.Add(ex.Message)
+                        errors.Add(ex)
                     End Try
                 End If
             End If
@@ -610,7 +610,7 @@ Namespace Load
                 value = Nothing
                 Return True
             Catch ex As Exception
-                errors.Add(ex.Message)
+                errors.Add(ex)
                 value = Nothing
                 Return False
             End Try

@@ -72,7 +72,7 @@ Namespace Base
                 If loader IsNot Nothing Then
                     _loader = loader
                     BeginLoad(loader)
-                    If LoadErrors.Count > 0 Then Throw New Exception($"Exception: the BeginLoad(loader) failed!")
+                    If LoadErrors.Count > 0 Then Throw New Exception($"Exception: the BeginLoad(DesignerLoader) failed!")
                 Else
                     BeginLoad(controlType)
                     If LoadErrors.Count > 0 Then Throw New Exception($"Exception: the BeginLoad(Type) failed! Some error during {controlType} loading")
