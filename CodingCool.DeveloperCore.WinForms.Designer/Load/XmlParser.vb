@@ -11,9 +11,9 @@ Imports KGySoft.Serialization.Binary
 
 Namespace Load
     Public Class XmlParser
-        Private ReadOnly _provider As DesignerComponentProvider
+        Private ReadOnly _provider As IComponentProvider
 
-        Public Sub New(provider As DesignerComponentProvider)
+        Public Sub New(provider As IComponentProvider)
             _provider = provider
         End Sub
         
