@@ -52,7 +52,7 @@ Namespace Load
                     Throw New Exception("Undefined Host Type: " & _rootComponentType.ToString())
                 End If
             Else
-                baseClassName = New XmlParser(_host).Parse(_code, errors, _xmlDocument)
+                baseClassName = New XmlParser(New DesignerComponentProvider(_host)).Parse(_code, errors, _xmlDocument)
             End If
             Dim cs As IComponentChangeService = TryCast(_host.GetService(GetType(IComponentChangeService)), IComponentChangeService)
             If cs IsNot Nothing Then

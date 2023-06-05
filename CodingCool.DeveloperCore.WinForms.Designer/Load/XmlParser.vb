@@ -11,10 +11,10 @@ Imports KGySoft.Serialization.Binary
 
 Namespace Load
     Public Class XmlParser
-        Private ReadOnly _host As IDesignerLoaderHost
+        Private ReadOnly _provider As DesignerComponentProvider
 
-        Public Sub New(host As IDesignerLoaderHost)
-            _host = host
+        Public Sub New(provider As DesignerComponentProvider)
+            _provider = provider
         End Sub
         
         Public Function Parse(fileName As String, errors As ArrayList, <Out> ByRef document As XmlDocument) As String
@@ -44,7 +44,7 @@ Namespace Load
         End Function
 
         Private Sub ParseEvent(childNode As XmlNode, instance As Object, errors As ArrayList)
-            Dim bindings As IEventBindingService = TryCast(_host.GetService(GetType(IEventBindingService)), IEventBindingService)
+            Dim bindings As IEventBindingService = _provider.GetEventService()
             If bindings Is Nothing Then
                 errors.Add("Unable to contact event binding service so we can't bind any events")
                 Return
@@ -127,9 +127,9 @@ Namespace Load
             If GetType(IComponent).IsAssignableFrom(type) Then
 
                 If nameAttr Is Nothing Then
-                    instance = _host.CreateComponent(type)
+                    instance = _provider.CreateComponent(type)
                 Else
-                    instance = _host.CreateComponent(type, nameAttr.Value)
+                    instance = _provider.CreateComponent(type, nameAttr.Value)
                 End If
             Else
                 instance = Activator.CreateInstance(type)
