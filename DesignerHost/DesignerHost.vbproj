@@ -12,4 +12,8 @@
     <ItemGroup>
         <ProjectReference Include="..\CodingCool.DeveloperCore.WinForms.Designer\CodingCool.DeveloperCore.WinForms.Designer.vbproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Reference Include="System.Design" />
+    </ItemGroup>
 </Project>
