@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFrameworks>net7.0-windows;net472</TargetFrameworks>
+        <RootNamespace>DesignerHost</RootNamespace>
+        <AssemblyName>DesignerHost</AssemblyName>
+        <UseWindowsForms>true</UseWindowsForms>
+        <StartupObject></StartupObject>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\CodingCool.DeveloperCore.WinForms.Designer\CodingCool.DeveloperCore.WinForms.Designer.vbproj" />
+    </ItemGroup>
+</Project>

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net7.0-windows;net472</TargetFrameworks>
+        <RootNamespace>CodingCool.DeveloperCore.WinForms.Designer.Remote</RootNamespace>
+        <AssemblyName>CodingCool.DeveloperCore.WinForms.Designer.Remote</AssemblyName>
+        <UseWindowsForms>true</UseWindowsForms>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Title>CodingCool.DeveloperCore.WinForms.Designer.Remote</Title>
+        <Authors>CoolCoderSuper</Authors>
+        <PackageProjectUrl>https://github.com/CoolCoderSuper/WinFormsDesigner</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/CoolCoderSuper/WinFormsDesigner</RepositoryUrl>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <FileVersion>1.0.0.0</FileVersion>
+        <Version>1.0.0</Version>
+    </PropertyGroup>
+
+</Project>
