@@ -3,14 +3,11 @@ Imports System.ComponentModel.Design
 Imports System.ComponentModel.Design.Serialization
 Imports System.Globalization
 Imports System.IO
-Imports System.Reflection
-Imports System.Runtime.InteropServices
-Imports System.Runtime.Serialization.Formatters.Binary
 Imports System.Threading
 Imports System.Windows.Forms
 Imports System.Xml
 Imports KGySoft.Serialization.Binary
-'stolen with glee from a random msdn article that i cant find
+'TODO: Read references
 Namespace Load
     Public Class XmlDesignerLoader
         Inherits BasicDesignerLoader
