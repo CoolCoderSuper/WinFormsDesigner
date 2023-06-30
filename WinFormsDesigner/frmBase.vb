@@ -122,6 +122,7 @@ Public Class frmBase
             view.Text = $"Test Form N. {tabPageSelectedIndex}"
             view.Dock = DockStyle.Fill
             view.Parent = tp
+            view.Focus()
         Catch ex As Exception
             Console.WriteLine($"{Name} the DesignSurface N. {tabPageSelectedIndex} has generated errors during loading!Exception: {ex.Message}")
             Return

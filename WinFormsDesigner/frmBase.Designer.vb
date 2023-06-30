@@ -1,4 +1,6 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿Imports CodingCool.DeveloperCore.WinForms.Designer.Base
+
+<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
 Partial Class frmBase
     Inherits System.Windows.Forms.Form
 

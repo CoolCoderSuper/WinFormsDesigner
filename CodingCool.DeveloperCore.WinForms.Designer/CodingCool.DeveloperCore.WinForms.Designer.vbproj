@@ -22,4 +22,9 @@
   <ItemGroup>
     <PackageReference Include="KGySoft.CoreLibraries" Version="7.1.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Base\DesignerToolBox.vb">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
 </Project>
