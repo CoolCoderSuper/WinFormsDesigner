@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net472;net7.0-windows</TargetFrameworks>
+    <TargetFrameworks>net48;net8.0-windows</TargetFrameworks>
     <RootNamespace>CodingCool.DeveloperCore.WinForms.Designer</RootNamespace>
     <AssemblyName>CodingCool.DeveloperCore.WinForms.Designer</AssemblyName>
 	<UseWindowsForms>true</UseWindowsForms>
@@ -17,10 +17,7 @@
     <Reference Include="System.Design" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="My Project\" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="KGySoft.CoreLibraries" Version="7.1.0" />
+    <PackageReference Include="KGySoft.CoreLibraries" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Base\DesignerToolBox.vb">

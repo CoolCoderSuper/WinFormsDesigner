@@ -11,7 +11,7 @@ Public Class RemoteDesigner
         Dim pipeName As String = $"\\.\pipe\{Guid.NewGuid()}"
         _server.Start(pipeName)
         AddHandler _server.MessageReceived, AddressOf MessageReceived
-        Dim p As Process = Process.Start("C:\CodingCool\Code\Projects\WinFormsDesigner\DesignerHost\bin\Debug\net472\DesignerHost.exe", pipeName)
+        Dim p As Process = Process.Start("C:\CodingCool\Code\Projects\WinFormsDesigner\DesignerHost\bin\Debug\net48\DesignerHost.exe", pipeName)
         p.WaitForInputIdle()
     End Sub
 

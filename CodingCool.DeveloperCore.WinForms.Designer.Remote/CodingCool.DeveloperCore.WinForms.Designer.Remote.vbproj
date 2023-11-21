@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net7.0-windows;net472</TargetFrameworks>
+        <TargetFrameworks>net8.0-windows;net48</TargetFrameworks>
         <RootNamespace>CodingCool.DeveloperCore.WinForms.Designer.Remote</RootNamespace>
         <AssemblyName>CodingCool.DeveloperCore.WinForms.Designer.Remote</AssemblyName>
         <UseWindowsForms>true</UseWindowsForms>

@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>WinFormsDesigner</RootNamespace>
     <AssemblyName>WinFormsDesigner</AssemblyName>
-	<TargetFrameworks>net48;net7.0-windows</TargetFrameworks>
+	<TargetFrameworks>net48;net8.0-windows</TargetFrameworks>
 	<UseWindowsForms>true</UseWindowsForms>
 	<StartupObject>WinFormsDesigner.frmBase</StartupObject>
 	<ImportedNamespaces>System.Windows.Forms=False,Microsoft.VisualBasic=True,System=True,System.Collections=True,System.Collections.Generic=True,System.Data=True,System.Diagnostics=True,System.Linq=True,System.Xml.Linq=True,System.Threading.Tasks=True,WinFormsDesigner=True</ImportedNamespaces>
@@ -16,6 +16,6 @@
 	<Reference Include="System.Design" Condition="$(TargetFramework) == 'net48'" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Resources.Extensions" Version="7.0.0" />
+    <PackageReference Include="System.Resources.Extensions" Version="8.0.0" />
   </ItemGroup>
 </Project>
