@@ -7,9 +7,10 @@ Imports CodingCool.DeveloperCore.WinForms.Designer.Core
 
 Namespace Base
     Public Interface IDesignSurfaceExt
-        
+
         Sub DoAction(command As String)
-        
+        ReadOnly Property Errors As ICollection
+
         Sub SwitchTabOrder()
         
         Sub UseSnapLines()

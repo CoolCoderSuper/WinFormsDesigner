@@ -28,6 +28,12 @@ Namespace Base
             End If
         End Sub
 
+        Public ReadOnly Property Errors As ICollection Implements IDesignSurfaceExt.Errors
+            Get
+                Return LoadErrors
+            End Get
+        End Property
+
         Public Sub UseSnapLines() Implements IDesignSurfaceExt.UseSnapLines
             Dim serviceProvider As IServiceContainer = TryCast(GetService(GetType(IServiceContainer)), IServiceContainer)
             Dim opsService As DesignerOptionService = TryCast(serviceProvider.GetService(GetType(DesignerOptionService)), DesignerOptionService)
