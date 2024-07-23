@@ -74,16 +74,25 @@ Namespace Load
         End Sub
 
         Private Function ParseInstanceDescriptor(node As XmlNode, errors As ArrayList) As Object
-            Dim memberAttr As XmlAttribute = node.Attributes("member")
-            If memberAttr Is Nothing Then
-                errors.Add("No member attribute on instance descriptor")
+            Dim memberInfo As MethodBase
+            If node.Attributes("member") IsNot Nothing Then
+                Dim memberAttr As XmlAttribute = node.Attributes("member")
+                Dim data As Byte() = Convert.FromBase64String(memberAttr.Value)
+                Dim mi As MemberInfo = BinarySerializer.Deserialize(data)
+                memberInfo = TryCast(mi, MethodBase)
+            ElseIf node.Attributes("typeName") IsNot Nothing Then
+                Dim typeNameAttr As XmlAttribute = node.Attributes("typeName")
+                Dim descType As Type = Type.GetType(typeNameAttr.Value)
+                Dim paramsAttr As XmlAttribute = node.Attributes("params")
+                Dim params As Type() = paramsAttr.Value.Split(";"c).Select(Function(x) Type.GetType(x)).ToArray()
+                Dim ctor As ConstructorInfo = descType.GetConstructor(params)
+                memberInfo = ctor
+            Else
+                errors.Add("No member or type name attribute on instance descriptor")
                 Return Nothing
             End If
-            Dim data As Byte() = Convert.FromBase64String(memberAttr.Value)
-            Dim mi As MemberInfo = BinarySerializer.Deserialize(data)
-            Dim args As Object() = Nothing
-            Dim memberInfo As MethodBase = TryCast(mi, MethodBase)
             If memberInfo IsNot Nothing
+                Dim args As Object()
                 Dim paramInfos As ParameterInfo() = (memberInfo).GetParameters()
                 args = New Object(paramInfos.Length - 1) {}
                 Dim idx As Integer = 0
@@ -97,18 +106,19 @@ Namespace Load
                     End If
                 Next
                 If idx <> paramInfos.Length Then
-                    errors.Add(String.Format("Member {0} requires {1} arguments, not {2}.", mi.Name, args.Length, idx))
+                    errors.Add(String.Format("Member {0} requires {1} arguments, not {2}.", memberInfo.Name, args.Length, idx))
                     Return Nothing
                 End If
+                Dim id As New InstanceDescriptor(memberInfo, args)
+                Dim instance As Object = id.Invoke()
+                For Each prop As XmlNode In node.ChildNodes
+                    If prop.Name.Equals("Property") Then
+                        ParseProperty(prop, instance, errors)
+                    End If
+                Next
+                Return instance
             End If
-            Dim id As InstanceDescriptor = New InstanceDescriptor(mi, args)
-            Dim instance As Object = id.Invoke()
-            For Each prop As XmlNode In node.ChildNodes
-                If prop.Name.Equals("Property") Then
-                    ParseProperty(prop, instance, errors)
-                End If
-            Next
-            Return instance
+            Return Nothing
         End Function
 
         Private Function ParseObject(node As XmlNode, errors As ArrayList) As Object

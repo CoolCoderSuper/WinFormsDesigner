@@ -3,6 +3,7 @@ Imports System.ComponentModel.Design
 Imports System.ComponentModel.Design.Serialization
 Imports System.Globalization
 Imports System.IO
+Imports System.Reflection
 Imports System.Threading
 Imports System.Windows.Forms
 Imports System.Xml
@@ -280,9 +281,18 @@ Namespace Load
             'Dim formatter As BinaryFormatter = New BinaryFormatter()
             'Dim stream As MemoryStream = New MemoryStream()
             'formatter.Serialize(stream, desc.MemberInfo)
-            Dim memberAttr As XmlAttribute = document.CreateAttribute("member")
-            memberAttr.Value = Convert.ToBase64String(BinarySerializer.Serialize(desc.MemberInfo))'Convert.ToBase64String(stream.ToArray())
-            node.Attributes.Append(memberAttr)
+            Dim ctor As ConstructorInfo = desc.MemberInfo
+            Dim typeName As String = ctor.DeclaringType.AssemblyQualifiedName
+            Dim typeNameAttr As XmlAttribute = document.CreateAttribute("typeName")
+            typeNameAttr.Value = typeName
+            node.Attributes.Append(typeNameAttr)
+            Dim params As String = String.Join(";", ctor.GetParameters().Select(Function(x) x.ParameterType.AssemblyQualifiedName))
+            Dim paramsAttr As XmlAttribute = document.CreateAttribute("params")
+            paramsAttr.Value = params
+            node.Attributes.Append(paramsAttr)
+            'Dim memberAttr As XmlAttribute = document.CreateAttribute("member")
+            'memberAttr.Value = Convert.ToBase64String(BinarySerializer.Serialize(desc.MemberInfo))'Convert.ToBase64String(stream.ToArray())
+            'node.Attributes.Append(memberAttr)
 
             For Each arg As Object In desc.Arguments
                 Dim argNode As XmlNode = document.CreateElement("Argument")
