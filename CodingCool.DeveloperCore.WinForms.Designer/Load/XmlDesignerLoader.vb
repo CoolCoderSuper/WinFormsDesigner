@@ -246,6 +246,8 @@ Namespace Load
                 parent.AppendChild(WriteInstanceDescriptor(document, id, value))
             ElseIf TypeOf value Is IComponent AndAlso (CType(value, IComponent)).Site IsNot Nothing AndAlso CType(value, IComponent).Site.Container Is idh.Container Then
                 parent.AppendChild(WriteReference(document, CType(value, IComponent)))
+            ElseIf TypeOf value Is IList Then
+                parent.AppendChild(WriteList(document, value))
             ElseIf value.[GetType]().IsSerializable Then
                 'Dim formatter As BinaryFormatter = New BinaryFormatter()
                 'Dim stream As MemoryStream = New MemoryStream()
@@ -257,6 +259,15 @@ Namespace Load
             End If
 
             Return True
+        End Function
+        
+        Private Function WriteList(document As XmlDocument, list As IList) As XmlNode
+            Dim listNode As XmlNode = document.CreateElement("List")
+            Dim typeAttr As XmlAttribute = document.CreateAttribute("type")
+            typeAttr.Value = list.[GetType]().AssemblyQualifiedName
+            listNode.Attributes.Append(typeAttr)
+            WriteCollection(document, list, listNode)
+            Return listNode
         End Function
 
         Private Sub WriteCollection(document As XmlDocument, list As IList, parent As XmlNode)

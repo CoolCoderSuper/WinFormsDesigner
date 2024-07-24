@@ -120,6 +120,29 @@ Namespace Load
             End If
             Return Nothing
         End Function
+        
+        Private Function ParseList(node As XmlNode, errors As ArrayList) As Object
+            Dim typeAttr As XmlAttribute = node.Attributes("type")
+            If typeAttr Is Nothing Then
+                errors.Add("<List> tag is missing required type attribute")
+                Return Nothing
+            End If
+            Dim type As Type = Type.[GetType](typeAttr.Value)
+            If type Is Nothing Then
+                errors.Add(String.Format("Type {0} could not be loaded.", typeAttr.Value))
+                Return Nothing
+            End If
+            If type.IsArray Then'only support arrays for now
+                Dim arr As New ArrayList
+                For Each child As XmlNode In node.ChildNodes
+                    Dim obj As Object
+                    ParseValue(child, TypeDescriptor.GetConverter(type.GetElementType()), errors, obj)
+                    arr.Add(obj)
+                Next
+                Return arr.ToArray(type.GetElementType())
+            End If
+            Return Nothing
+        End Function
 
         Private Function ParseObject(node As XmlNode, errors As ArrayList) As Object
             Dim typeAttr As XmlAttribute = node.Attributes("type")
@@ -260,6 +283,9 @@ Namespace Load
                         End If
                     ElseIf child.Name.Equals("InstanceDescriptor") Then
                         value = ParseInstanceDescriptor(child, errors)
+                        Return (value IsNot Nothing)
+                    ElseIf child.Name.Equals("List") Then
+                        value = ParseList(child, errors)
                         Return (value IsNot Nothing)
                     Else
                         errors.Add(String.Format("Unexpected element type {0}", child.Name))
